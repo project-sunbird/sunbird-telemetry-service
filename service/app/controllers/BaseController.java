@@ -7,7 +7,6 @@ import org.sunbird.common.models.response.ResponseParams;
 import org.sunbird.common.models.response.ResponseParams.StatusType;
 import org.sunbird.common.models.util.ProjectUtil;
 import org.sunbird.common.request.ExecutionContext;
-import org.sunbird.common.request.Request;
 import org.sunbird.common.responsecode.ResponseCode;
 
 import play.mvc.Result;
