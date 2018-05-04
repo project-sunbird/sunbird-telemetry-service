@@ -14,12 +14,10 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.common.exception.ProjectCommonException;
-import org.sunbird.common.models.response.Response;
 import org.sunbird.common.models.util.LoggerEnum;
 import org.sunbird.common.models.util.ProjectLogger;
 import org.sunbird.common.request.Request;
 import org.sunbird.common.responsecode.ResponseCode;
-import org.sunbird.telemetry.actor.TelemetryManagerActor;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,7 +36,6 @@ import play.mvc.Result;
 public class TelemetryController extends BaseController {
 
 	private ObjectMapper mapper = new ObjectMapper();
-	TelemetryManagerActor telemetryManager = new TelemetryManagerActor();
 	private static int defaultSize = 1000;
 
 	static {
@@ -82,10 +79,9 @@ public class TelemetryController extends BaseController {
 				throw new ProjectCommonException(ResponseCode.invalidRequestData.getErrorCode(),
 						"Please provide valid headers.", ResponseCode.CLIENT_ERROR.getResponseCode());
 			}
+			request.setOperation("dispatchTelemetry");
+			return actorResponseHandler(request, timeout, "", request());
 
-			Response response = telemetryManager.save(request);
-			Result result = createCommonResponse(request().path(), response);
-			return Promise.<Result>pure(result);
 		} catch (Exception e) {
 			return Promise.<Result>pure(createCommonExceptionResult(request().path(), e));
 		}

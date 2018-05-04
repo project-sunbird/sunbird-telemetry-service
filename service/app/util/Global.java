@@ -6,6 +6,7 @@ package util;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
+import org.sunbird.actor.service.SunbirdMWService;
 import org.sunbird.common.exception.ProjectCommonException;
 import org.sunbird.common.models.response.Response;
 import org.sunbird.common.models.util.JsonKey;
@@ -54,6 +55,7 @@ public class Global extends GlobalSettings {
 	 *            Application
 	 */
 	public void onStart(Application app) {
+		SunbirdMWService.init();
 		ProjectLogger.log("Server started.");
 	}
 
