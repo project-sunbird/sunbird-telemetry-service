@@ -10,6 +10,6 @@ ENV  M2_HOME /opt/apache-maven-3.3.9
 ENV  PATH ${M2_HOME}/bin:${PATH}
 COPY learner /opt/learner/
 WORKDIR /opt/learner/services
-RUN mvn clean install -DskipTests
-WORKDIR /opt/learner/services/learning-service
+RUN mvn clean install
+WORKDIR /opt/learner/services/telemetry-service
 CMD ["mvn", "play2:dist"]
