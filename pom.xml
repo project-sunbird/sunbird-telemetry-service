@@ -6,7 +6,7 @@
   <packaging>pom</packaging>
   <name>Sunbird Telemetry Service</name>
   <modules>
-      <!-- <module>service/libs</module> -->
+      <module>service/libs</module>
       <module>service</module>
   </modules>
 </project>
