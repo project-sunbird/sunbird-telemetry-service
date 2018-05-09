@@ -1,6 +1,3 @@
-/**
- * 
- */
 package controller.mapper;
 
 import org.sunbird.common.exception.ProjectCommonException;
@@ -15,19 +12,12 @@ import play.libs.Json;
  * This class will map the requested JSON data into custom class.
  * if request data is incorrect format then it will throw ProjectCommonException 
  * with 400 error code.
+ * 
  * @author Manzarul
  *
  */
 public class RequestMapper {
-
-  /**
-   * Method to map request
-   * 
-   * @param requestData JsonNode
-   * @param obj Class<T>
-   * @exception ProjectCommonException
-   * @return Object <T>
-   */
+	
 	public static <T> Object mapRequest(JsonNode requestData, Class<T> obj) throws ProjectCommonException {
 		try {
 			return Json.fromJson(requestData, obj);

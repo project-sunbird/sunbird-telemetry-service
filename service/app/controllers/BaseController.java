@@ -30,62 +30,35 @@ import play.mvc.Http.Request;
 /**
  * This controller we can use for writing some common method.
  * 
- * @author Manzarul
+ * @author Mahesh Kumar Gangula
  */
 public class BaseController extends Controller {
 
 	private static final int AKKA_WAIT_TIME = 10;
 	protected Timeout timeout = new Timeout(AKKA_WAIT_TIME, TimeUnit.SECONDS);
 
-	/**
-	 * This method will make a call to Akka actor and return promise.
-	 *
-	 * @param actorRef
-	 *            ActorSelection
-	 * @param request
-	 *            Request
-	 * @param timeout
-	 *            Timeout
-	 * @param responseKey
-	 *            String
-	 * @param httpReq
-	 *            play.mvc.Http.Request
-	 * @return Promise<Result>
-	 */
 	public Promise<Result> actorResponseHandler(org.sunbird.common.request.Request request, Timeout timeout,
 			String responseKey, Request httpReq) {
 		Object actorRef = SunbirdMWService.getRequestRouter();
 
+		Function<Object, Result> function = new Function<Object, Result>() {
+			public Result apply(Object result) {
+				if (result instanceof Response) {
+					Response response = (Response) result;
+					return createCommonResponse(request().path(), responseKey, response);
+				} else if (result instanceof ProjectCommonException) {
+					return createCommonExceptionResult(request().path(), (ProjectCommonException) result);
+				} else {
+					ProjectLogger.log("Unsupported Actor Response format", LoggerEnum.INFO.name());
+					return createCommonExceptionResult(request().path(), new Exception());
+				}
+			}
+		};
+
 		if (actorRef instanceof ActorRef) {
-			return Promise.wrap(Patterns.ask((ActorRef) actorRef, request, timeout))
-					.map(new Function<Object, Result>() {
-						public Result apply(Object result) {
-							if (result instanceof Response) {
-								Response response = (Response) result;
-								return createCommonResponse(request().path(), responseKey, response);
-							} else if (result instanceof ProjectCommonException) {
-								return createCommonExceptionResult(request().path(), (ProjectCommonException) result);
-							} else {
-								ProjectLogger.log("Unsupported Actor Response format", LoggerEnum.INFO.name());
-								return createCommonExceptionResult(request().path(), new Exception());
-							}
-						}
-					});
+			return Promise.wrap(Patterns.ask((ActorRef) actorRef, request, timeout)).map(function);
 		} else {
-			return Promise.wrap(Patterns.ask((ActorSelection) actorRef, request, timeout))
-					.map(new Function<Object, Result>() {
-						public Result apply(Object result) {
-							if (result instanceof Response) {
-								Response response = (Response) result;
-								return createCommonResponse(request().path(), responseKey, response);
-							} else if (result instanceof ProjectCommonException) {
-								return createCommonExceptionResult(request().path(), (ProjectCommonException) result);
-							} else {
-								ProjectLogger.log("Unsupported Actor Response format", LoggerEnum.INFO.name());
-								return createCommonExceptionResult(request().path(), new Exception());
-							}
-						}
-					});
+			return Promise.wrap(Patterns.ask((ActorSelection) actorRef, request, timeout)).map(function);
 		}
 	}
 
@@ -99,15 +72,6 @@ public class BaseController extends Controller {
 		return Results.status(status, Json.toJson(reponse));
 	}
 
-	/**
-	 * This method will handle response in case of exception
-	 *
-	 * @param request
-	 *            play.mvc.Http.Request
-	 * @param exception
-	 *            ProjectCommonException
-	 * @return Response
-	 */
 	public static Response createResponseOnException(String path, Exception exception) {
 		Response response = getErrorResponse(exception);
 		response.setVer("");
@@ -140,18 +104,13 @@ public class BaseController extends Controller {
 	protected static String setMessage(Exception e) {
 		if (e instanceof ProjectCommonException) {
 			return e.getMessage();
+		} else if (e instanceof akka.pattern.AskTimeoutException) {
+			return "Request processing taking too long time. Please try again later.";
 		} else {
 			return "Something went wrong in server while processing the request";
 		}
 	}
 
-	/**
-	 * This method will create response parameter
-	 *
-	 * @param code
-	 *            ResponseCode
-	 * @return ResponseParams
-	 */
 	public static ResponseParams createResponseParamObj(ResponseCode code) {
 		ResponseParams params = new ResponseParams();
 		if (code.getResponseCode() != 200) {
@@ -176,15 +135,6 @@ public class BaseController extends Controller {
 		return Results.ok(Json.toJson(BaseController.createSuccessResponse(path, response)));
 	}
 
-	/**
-	 * This method will create data for success response.
-	 *
-	 * @param request
-	 *            play.mvc.Http.Request
-	 * @param response
-	 *            Response
-	 * @return Response
-	 */
 	public static Response createSuccessResponse(String path, Response response) {
 
 		if (StringUtils.isNotBlank(path)) {
@@ -200,24 +150,11 @@ public class BaseController extends Controller {
 		return response;
 	}
 
-	/**
-	 * This method will provide api version.
-	 *
-	 * @param request
-	 *            String
-	 * @return String
-	 */
 	public static String getApiVersion(String path) {
 
 		return path.split("[/]")[1];
 	}
 
-	/**
-	 * 
-	 * @param request
-	 *            play.mvc.Http.Request
-	 * @return String
-	 */
 	private static String getApiResponseId() {
 		return "api.telemetry";
 	}
