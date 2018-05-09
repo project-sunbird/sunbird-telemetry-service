@@ -8,6 +8,8 @@ import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.sunbird.common.models.util.LoggerEnum;
+import org.sunbird.common.models.util.ProjectLogger;
 
 /**
  * 
@@ -28,6 +30,8 @@ public class KafkaClient {
 	}
 	
 	private static void createProducer() {
+		ProjectLogger.log("Kafka server config: "+ BOOTSTRAP_SERVERS, LoggerEnum.INFO.name());
+		ProjectLogger.log("Kafka topic name: "+ topic, LoggerEnum.INFO.name());
 		Properties props = new Properties();
 		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
 		props.put(ProducerConfig.CLIENT_ID_CONFIG, "KafkaClientProducer");

@@ -101,8 +101,14 @@ public class TelemetryController extends BaseController {
 					List<Map<String, Object>> events = (List<Map<String, Object>>) data.get("events");
 					if (null != events && !events.isEmpty()) {
 						for (Map<String, Object> event : events) {
-							if (null != event)
+							if (null != event) {
 								allEvents.add(mapper.writeValueAsString(event));
+								if (allEvents.size() > defaultSize) {
+									throw new ProjectCommonException(ResponseCode.invalidRequestData.getErrorCode(),
+											"Too many events to process. Max limit for a request is " + defaultSize,
+											ResponseCode.CLIENT_ERROR.getResponseCode());
+								}
+							}
 						}
 					}
 				}
@@ -116,10 +122,6 @@ public class TelemetryController extends BaseController {
 		if (allEvents.isEmpty()) {
 			throw new ProjectCommonException(ResponseCode.invalidRequestData.getErrorCode(),
 					"Please provide valid binary gzip file. File is empty.",
-					ResponseCode.CLIENT_ERROR.getResponseCode());
-		} else if (allEvents.size() > defaultSize) {
-			throw new ProjectCommonException(ResponseCode.invalidRequestData.getErrorCode(),
-					"Too many events to process. Max limit for a request is " + defaultSize,
 					ResponseCode.CLIENT_ERROR.getResponseCode());
 		} else {
 			Request request = new Request();
