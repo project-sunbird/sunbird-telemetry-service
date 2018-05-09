@@ -3,15 +3,6 @@
  */
 package controllers;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.common.exception.ProjectCommonException;
 import org.sunbird.common.models.util.LoggerEnum;
@@ -19,13 +10,9 @@ import org.sunbird.common.models.util.ProjectLogger;
 import org.sunbird.common.request.Request;
 import org.sunbird.common.responsecode.ResponseCode;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import controller.mapper.RequestMapper;
 import play.libs.F;
 import play.libs.F.Promise;
-import play.mvc.BodyParser;
 import play.mvc.Result;
 
 /**
@@ -35,9 +22,6 @@ import play.mvc.Result;
  *
  */
 public class TelemetryController extends BaseController {
-
-	private ObjectMapper mapper = new ObjectMapper();
-
 
 	/**
 	 * This method will receive the telemetry data and send it to EKStep to process
