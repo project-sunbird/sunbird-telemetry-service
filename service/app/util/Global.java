@@ -85,12 +85,14 @@ public class Global extends GlobalSettings {
 	 */
 	@Override
 	public Promise<Result> onError(Http.RequestHeader request, Throwable t) {
-
 		Response response = null;
 		ProjectCommonException commonException = null;
 		if (t instanceof ProjectCommonException) {
 			commonException = (ProjectCommonException) t;
 			response = BaseController.createResponseOnException(request.path(), (ProjectCommonException) t);
+		} else if (t instanceof akka.pattern.AskTimeoutException) {
+			commonException = new ProjectCommonException(ResponseCode.operationTimeout.getErrorCode(),
+					ResponseCode.operationTimeout.getErrorMessage(), ResponseCode.SERVER_ERROR.getResponseCode());
 		} else {
 			commonException = new ProjectCommonException(ResponseCode.internalError.getErrorCode(),
 					ResponseCode.internalError.getErrorMessage(), ResponseCode.SERVER_ERROR.getResponseCode());
