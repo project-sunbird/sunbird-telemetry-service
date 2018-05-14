@@ -42,7 +42,7 @@ public class TelemetryControllerTest {
     BaseController.setActorRef(subject);
   }
 
-  // @Test
+  @Test
   public void testSendTelemetryUsingTextBodyInvalidHeaders() {
     String body =
         "{\"request\":{\"id\":\"sunbird.telemetry\",\"ver\":\"3.0\",\"ets\":1521629184223,\"events\":[{\"eid\":\"LOG\",\"ets\":1521629109520,\"ver\":\"3.0\",\"mid\":\"LOG:a473972af5b9235e68a7b641a5bd1188\",\"actor\":{\"id\":\"anonymous\",\"type\":\"User\"},\"context\":{\"channel\":\"sunbird\",\"pdata\":{\"id\":\"sunbird.portal\",\"ver\":\"1.0\",\"pid\":\"sunbird-portal\"},\"env\":\"home\",\"sid\":\"\",\"did\":\"6541fde589d55fdcaca385c75706960a\",\"cdata\":[],\"rollup\":{}},\"object\":{},\"tags\":[null],\"edata\":{\"type\":\"api_call\",\"level\":\"INFO\",\"message\":\"Content read\",\"pageid\":\"\"}}]}}";
@@ -58,7 +58,7 @@ public class TelemetryControllerTest {
   }
 
   /** Send telemetry as body with proper headers and data - Should return successful response. */
-  // @Test
+  @Test
   public void testSendTelemetryUsingTextBody() {
     String body =
         "{\"request\":{\"id\":\"sunbird.telemetry\",\"ver\":\"3.0\",\"ets\":1521629184223,\"events\":[{\"eid\":\"LOG\",\"ets\":1521629109520,\"ver\":\"3.0\",\"mid\":\"LOG:a473972af5b9235e68a7b641a5bd1188\",\"actor\":{\"id\":\"anonymous\",\"type\":\"User\"},\"context\":{\"channel\":\"sunbird\",\"pdata\":{\"id\":\"sunbird.portal\",\"ver\":\"1.0\",\"pid\":\"sunbird-portal\"},\"env\":\"home\",\"sid\":\"\",\"did\":\"6541fde589d55fdcaca385c75706960a\",\"cdata\":[],\"rollup\":{}},\"object\":{},\"tags\":[],\"edata\":{\"type\":\"api_call\",\"level\":\"INFO\",\"message\":\"Content read\",\"pageid\":\"\"}}]}}";
@@ -71,7 +71,7 @@ public class TelemetryControllerTest {
     assertEquals(200, result.status());
   }
 
-  // @Test
+  @Test
   public void testSendTelemetryUsingGZip() throws Exception {
     File file = app.getFile("test/resources/telemetry.few.gz");
     byte[] data = readByteArrayFromZp(file);
