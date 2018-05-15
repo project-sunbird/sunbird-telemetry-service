@@ -36,14 +36,12 @@ public class TelemetryController extends BaseController {
       if ("application/json".equalsIgnoreCase(contentTypeHeader)) {
         ProjectLogger.log("Receiving telemetry in json format.", LoggerEnum.INFO.name());
         request.put(BODY, Json.stringify(request().body().asJson()));
-        TelemetryRequestValidator.validateTelemetryRequest(request, "json");
       } else if (("application/octet-stream".equalsIgnoreCase(contentTypeHeader)
               || "application/zip".equalsIgnoreCase(contentTypeHeader))
           && StringUtils.containsIgnoreCase(encodingHeader, GZIP)) {
         ProjectLogger.log("Receiving telemetry in gzip format.", LoggerEnum.INFO.name());
         byte[] body = request().body().asRaw().asBytes();
         request.put(BODY, body);
-        TelemetryRequestValidator.validateTelemetryRequest(request, GZIP);
       } else {
         throw new ProjectCommonException(
             ResponseCode.invalidRequestData.getErrorCode(),
