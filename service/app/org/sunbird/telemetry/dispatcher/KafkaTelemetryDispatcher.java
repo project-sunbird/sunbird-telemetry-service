@@ -17,6 +17,8 @@ import org.sunbird.actor.router.ActorConfig;
 import org.sunbird.common.exception.ProjectCommonException;
 import org.sunbird.common.models.response.Response;
 import org.sunbird.common.models.util.JsonKey;
+import org.sunbird.common.models.util.LoggerEnum;
+import org.sunbird.common.models.util.ProjectLogger;
 import org.sunbird.common.request.Request;
 import org.sunbird.common.responsecode.ResponseCode;
 import org.sunbird.kafka.KafkaClient;
@@ -53,6 +55,7 @@ public class KafkaTelemetryDispatcher extends BaseActor {
 			ProducerRecord<Long, String> record = new ProducerRecord<Long, String>(KafkaClient.getTopic(), event);
 			KafkaClient.getProducer().send(record);
 		}
+		ProjectLogger.log("Kafka telemetry dispatcher status: successful.", LoggerEnum.INFO.name());
 	}
 
 	private List<String> getEvents(Request request) throws Exception {

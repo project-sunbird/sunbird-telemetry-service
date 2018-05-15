@@ -9,9 +9,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.common.exception.ProjectCommonException;
-import org.sunbird.common.models.util.JsonKey;
-import org.sunbird.common.models.util.PropertiesCache;
-import org.sunbird.common.models.util.RestUtil;
+import org.sunbird.common.models.util.*;
 import org.sunbird.common.responsecode.ResponseCode;
 
 public class EkstepTelemetryDispatcher {
@@ -44,20 +42,21 @@ public class EkstepTelemetryDispatcher {
   private static void executeRequest(BaseRequest request) throws Exception {
     HttpResponse<JsonNode> result = null;
     try {
-      result = RestUtil.execute(request);
+        result = RestUtil.execute(request);
+        ProjectLogger.log("Ekstep telemetry dispatcher status: " + result.getStatus(), LoggerEnum.INFO.name());
+        if (!RestUtil.isSuccessful(result)) {
+            // TODO: 1. Always returning server_error. Need to improve.
+            // TODO: 2. Errors list is not returning which is there in Ekstep response. We
+            // should return this.
+            String err = RestUtil.getFromResponse(result, "params.err");
+            String message = RestUtil.getFromResponse(result, "params.errmsg");
+            throw new ProjectCommonException(err, message, ResponseCode.SERVER_ERROR.getResponseCode());
+        }
     } catch (Exception e) {
       throw new ProjectCommonException(
-          "TELEMETRY_DISPACHER_ERROR",
-          "Error while processing Ekstep telemetry dispacher. Please try again later.",
+          "TELEMETRY_DISPATCHER_ERROR",
+          "Error while processing Ekstep telemetry dispatcher. Please try again later.",
           ResponseCode.SERVER_ERROR.getResponseCode());
-    }
-    if (!RestUtil.isSuccessful(result)) {
-      // TODO: 1. Always returning server_error. Need to improve.
-      // TODO: 2. Errors list is not returning which is there in ekstep response. We
-      // should return this.
-      String err = RestUtil.getFromResponse(result, "params.err");
-      String message = RestUtil.getFromResponse(result, "params.errmsg");
-      throw new ProjectCommonException(err, message, ResponseCode.SERVER_ERROR.getResponseCode());
     }
   }
 
