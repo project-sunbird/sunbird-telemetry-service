@@ -16,16 +16,18 @@ import org.sunbird.common.responsecode.ResponseCode;
 
 public class EkstepTelemetryDispatcher {
 
-  public static void dispatch(Map<String, String[]> reqHeaders, String body) throws Exception {
+  public static boolean dispatch(Map<String, String[]> reqHeaders, String body) throws Exception {
     Map<String, String> headers = getHeaders(reqHeaders);
     BaseRequest request = Unirest.post(telemetryAPIURL()).headers(headers).body(body);
     executeRequest(request);
+    return true;
   }
 
-  public static void dispatch(Map<String, String[]> reqHeaders, byte[] body) throws Exception {
+  public static boolean dispatch(Map<String, String[]> reqHeaders, byte[] body) throws Exception {
     Map<String, String> headers = getHeaders(reqHeaders);
     BaseRequest request = Unirest.post(telemetryAPIURL()).headers(headers).body(body);
     executeRequest(request);
+    return true;
   }
 
   private static Map<String, String> getHeaders(Map<String, String[]> headers) {
