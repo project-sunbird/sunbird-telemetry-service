@@ -20,9 +20,6 @@ import org.sunbird.common.responsecode.ResponseCode;
 import org.sunbird.telemetry.actor.TelemetryManagerActor;
 
 /** @author Manzarul */
-// @RunWith(MockitoJUnitRunner.class)
-// @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-// @PrepareForTest(EkstepTelemetryDispatcher.class)
 public class TelemetryManagementActorTest {
   private static final Props props = Props.create(TelemetryManagerActor.class);
   private static ActorSystem system;
@@ -50,6 +47,20 @@ public class TelemetryManagementActorTest {
   public void jsonRequestBodyTest() {
     Map<String, String[]> headers = new HashMap<String, String[]>();
     headers.put("content-type", new String[] {"application/json"});
+    TestKit probe = new TestKit(system);
+    ActorRef subject = system.actorOf(props);
+    Request reqObj = new Request();
+    reqObj.setOperation("dispatchtelemetry");
+    reqObj.put(TelemetryController.BODY, body);
+    reqObj.put("headers", headers);
+    subject.tell(reqObj, probe.getRef());
+    Response respone = probe.expectMsgClass(Response.class);
+    Assert.assertEquals(JsonKey.SUCCESS, respone.get(JsonKey.RESPONSE));
+  }
+
+  @Test
+  public void jsonRequestBodyWithOutHeaderTest() {
+    Map<String, String[]> headers = new HashMap<String, String[]>();
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
     Request reqObj = new Request();

@@ -21,7 +21,7 @@ import org.sunbird.common.models.util.LoggerEnum;
 import org.sunbird.common.models.util.ProjectLogger;
 import org.sunbird.common.request.Request;
 import org.sunbird.common.responsecode.ResponseCode;
-import org.sunbird.kafka.KafkaClient;
+import org.sunbird.kafka.client.KafkaClient;
 
 /** @author mahesh */
 @ActorConfig(

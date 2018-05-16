@@ -98,10 +98,7 @@ public class TelemetryControllerTest {
     headers.put("Content-Type", new String[] {"application/json"});
     request.headers(headers);
     Result result = Helpers.route(request);
-    String response = Helpers.contentAsString(result);
-    assertTrue(response.contains(ResponseCode.invalidRequestData.getErrorCode()));
-    assertTrue(response.contains("Telemetry events data is missing."));
-    assertEquals(400, result.status());
+    assertEquals(200, result.status());
   }
 
   @Test
@@ -114,10 +111,7 @@ public class TelemetryControllerTest {
     headers.put("Content-Type", new String[] {"application/json"});
     request.headers(headers);
     Result result = Helpers.route(request);
-    String response = Helpers.contentAsString(result);
-    assertTrue(response.contains(ResponseCode.invalidRequestData.getErrorCode()));
-    assertTrue(response.contains("Telemetry events data is missing."));
-    assertEquals(400, result.status());
+    assertEquals(200, result.status());
   }
 
   /**
