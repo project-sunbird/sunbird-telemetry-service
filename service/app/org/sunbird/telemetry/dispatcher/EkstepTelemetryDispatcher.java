@@ -5,11 +5,13 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.request.BaseRequest;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.common.exception.ProjectCommonException;
 import org.sunbird.common.models.util.JsonKey;
+import org.sunbird.common.models.util.ProjectLogger;
 import org.sunbird.common.models.util.PropertiesCache;
 import org.sunbird.common.models.util.RestUtil;
 import org.sunbird.common.responsecode.ResponseCode;
@@ -31,6 +33,10 @@ public class EkstepTelemetryDispatcher {
   }
 
   private static Map<String, String> getHeaders(Map<String, String[]> headers) {
+    if (headers == null) {
+      ProjectLogger.log("Header values are coming as null");
+      return new HashMap<String, String>();
+    }
     return headers
         .entrySet()
         .stream()
