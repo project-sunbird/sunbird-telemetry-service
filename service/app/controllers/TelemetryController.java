@@ -11,6 +11,7 @@ import play.libs.F;
 import play.libs.F.Promise;
 import play.libs.Json;
 import play.mvc.Result;
+import util.Constant;
 
 /**
  * This controller will handle all sunbird telemetry request data.
@@ -18,8 +19,6 @@ import play.mvc.Result;
  * @author Mahesh Kumar Gangula
  */
 public class TelemetryController extends BaseController {
-  public static final String BODY = "body";
-  public static final String GZIP = "gzip";
   /**
    * This method will receive the telemetry data and send it to EKStep to process it.
    *
@@ -27,24 +26,24 @@ public class TelemetryController extends BaseController {
    */
   public F.Promise<Result> save() {
     try {
-      String contentTypeHeader = request().getHeader("content-type");
-      String encodingHeader = request().getHeader("accept-encoding");
+      String contentTypeHeader = request().getHeader(Constant.CONTENT_TYPE);
+      String encodingHeader = request().getHeader(Constant.ACCEPT_ENCODING);
       Request request = new Request();
-      request.setOperation("dispatchtelemetry");
-      request.put("headers", request().headers());
-      if ("application/json".equalsIgnoreCase(contentTypeHeader)) {
+      request.setOperation(Constant.OPERATION_NAME);
+      request.put(Constant.HEADERS, request().headers());
+      if (Constant.APPLICATION_JSON.equalsIgnoreCase(contentTypeHeader)) {
         ProjectLogger.log("Receiving telemetry in json format.", LoggerEnum.INFO.name());
-        request.put(BODY, Json.stringify(request().body().asJson()));
-      } else if (("application/octet-stream".equalsIgnoreCase(contentTypeHeader)
-              || "application/zip".equalsIgnoreCase(contentTypeHeader))
-          && StringUtils.containsIgnoreCase(encodingHeader, GZIP)) {
+        request.put(Constant.BODY, Json.stringify(request().body().asJson()));
+      } else if ((Constant.APPLICATION_OCTET.equalsIgnoreCase(contentTypeHeader)
+              || Constant.APPLICATION_ZIP.equalsIgnoreCase(contentTypeHeader))
+          && StringUtils.containsIgnoreCase(encodingHeader, Constant.GZIP)) {
         ProjectLogger.log("Receiving telemetry in gzip format.", LoggerEnum.INFO.name());
         byte[] body = request().body().asRaw().asBytes();
-        request.put(BODY, body);
+        request.put(Constant.BODY, body);
       } else {
         throw new ProjectCommonException(
             ResponseCode.invalidRequestData.getErrorCode(),
-            "Please provide valid headers.",
+            Constant.INVALID_HEADER_MSG,
             ResponseCode.CLIENT_ERROR.getResponseCode());
       }
       return actorResponseHandler(getActorRef(), request, timeout, "", request());

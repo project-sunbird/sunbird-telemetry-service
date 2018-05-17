@@ -26,7 +26,8 @@ import play.mvc.Result;
 import play.mvc.Results;
 
 /**
- * This controller we can use for writing some common method.
+ * This controller we can use for writing some common method. it should be extended by each
+ * controller class.
  *
  * @author Mahesh Kumar Gangula
  */
@@ -44,14 +45,24 @@ public class BaseController extends Controller {
     }
   }
 
+  /**
+   * This is a common method which will handle Asyn response came from Actor service. This method
+   * has the internal logic to identify the response object. add some more attribute on top of
+   * provided response and then return the response to caller.
+   *
+   * @param actorRef Object Reference of the actor selection
+   * @param request org.sunbird.common.request.Request
+   * @param timeout Timeout
+   * @param responseKey String
+   * @param httpReq Request Play http request
+   * @return Promise<Result>
+   */
   public Promise<Result> actorResponseHandler(
       Object actorRef,
       org.sunbird.common.request.Request request,
       Timeout timeout,
       String responseKey,
       Request httpReq) {
-    // Object actorRef = SunbirdMWService.getRequestRouter();
-
     Function<Object, Result> function =
         new Function<Object, Result>() {
           public Result apply(Object result) {
@@ -74,7 +85,14 @@ public class BaseController extends Controller {
     }
   }
 
-  public static Result createCommonExceptionResult(String path, Exception exception) {
+  /**
+   * This method will create play mvc Result object from uri and exception param.
+   *
+   * @param path String (uri)
+   * @param exception Exception
+   * @return Result
+   */
+  public Result createCommonExceptionResult(String path, Exception exception) {
     Response reponse = createResponseOnException(path, exception);
     int status = ResponseCode.SERVER_ERROR.getResponseCode();
     if (exception instanceof ProjectCommonException) {
@@ -84,6 +102,14 @@ public class BaseController extends Controller {
     return Results.status(status, Json.toJson(reponse));
   }
 
+  /**
+   * Common method to create Response object from path and exception. This response object is used
+   * by createCommonExceptionResult method.
+   *
+   * @param path String
+   * @param exception Exception
+   * @return Response
+   */
   public static Response createResponseOnException(String path, Exception exception) {
     Response response = getErrorResponse(exception);
     response.setVer("");
@@ -95,7 +121,13 @@ public class BaseController extends Controller {
     return response;
   }
 
-  protected static Response getErrorResponse(Exception e) {
+  /**
+   * This method will create Response object based on passed exception.
+   *
+   * @param e
+   * @return
+   */
+  private static Response getErrorResponse(Exception e) {
     Response response = new Response();
     ResponseParams resStatus = new ResponseParams();
     String message = setMessage(e);
@@ -113,14 +145,25 @@ public class BaseController extends Controller {
     return response;
   }
 
+  /**
+   * This method will return message based on exception type. this method has the assumption if
+   * exception is instance of ProjectCommonException then it will come with message. in other case
+   * we are checking is it timeout exception then return "Request processing taking too long time.
+   * Please try again later." else it will return "Something went wrong in server while processing
+   * the reques"
+   *
+   * @param e Exception
+   * @return String
+   */
   protected static String setMessage(Exception e) {
-    if (e instanceof ProjectCommonException) {
-      return e.getMessage();
-    } else if (e instanceof akka.pattern.AskTimeoutException) {
-      return "Request processing taking too long time. Please try again later.";
-    } else {
-      return "Something went wrong in server while processing the request";
+    if (e != null) {
+      if (e instanceof ProjectCommonException) {
+        return e.getMessage();
+      } else if (e instanceof akka.pattern.AskTimeoutException) {
+        return "Request processing taking too long time. Please try again later.";
+      }
     }
+    return "Something went wrong in server while processing the request";
   }
 
   public static ResponseParams createResponseParamObj(ResponseCode code) {
@@ -147,6 +190,13 @@ public class BaseController extends Controller {
     return Results.ok(Json.toJson(BaseController.createSuccessResponse(path, response)));
   }
 
+  /**
+   * This method will create success response object.
+   *
+   * @param path String
+   * @param response Response
+   * @return Response
+   */
   public static Response createSuccessResponse(String path, Response response) {
 
     if (StringUtils.isNotBlank(path)) {
@@ -162,11 +212,26 @@ public class BaseController extends Controller {
     return response;
   }
 
+  /**
+   * This method will return api version. Assumption is version will always come first in url :EX
+   * v1/user/create
+   *
+   * @param path String
+   * @return String
+   */
   public static String getApiVersion(String path) {
-
+    if (StringUtils.isBlank(path)) {
+      ProjectLogger.log("Path is coming as null or empty==", LoggerEnum.INFO);
+      return "v1";
+    }
     return path.split("[/]")[1];
   }
 
+  /**
+   * This method will provide api response id.
+   *
+   * @return String
+   */
   private static String getApiResponseId() {
     return "api.telemetry";
   }

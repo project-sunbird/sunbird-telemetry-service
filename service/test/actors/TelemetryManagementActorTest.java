@@ -6,7 +6,6 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.testkit.javadsl.TestKit;
-import controllers.TelemetryController;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Assert;
@@ -18,6 +17,7 @@ import org.sunbird.common.models.util.JsonKey;
 import org.sunbird.common.request.Request;
 import org.sunbird.common.responsecode.ResponseCode;
 import org.sunbird.telemetry.actor.TelemetryManagerActor;
+import util.Constant;
 
 /** @author Manzarul */
 public class TelemetryManagementActorTest {
@@ -46,13 +46,13 @@ public class TelemetryManagementActorTest {
   @Test
   public void jsonRequestBodyTest() {
     Map<String, String[]> headers = new HashMap<String, String[]>();
-    headers.put("content-type", new String[] {"application/json"});
+    headers.put(Constant.CONTENT_TYPE, new String[] {Constant.APPLICATION_JSON});
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
     Request reqObj = new Request();
-    reqObj.setOperation("dispatchtelemetry");
-    reqObj.put(TelemetryController.BODY, body);
-    reqObj.put("headers", headers);
+    reqObj.setOperation(Constant.OPERATION_NAME);
+    reqObj.put(Constant.BODY, body);
+    reqObj.put(Constant.HEADERS, headers);
     subject.tell(reqObj, probe.getRef());
     Response respone = probe.expectMsgClass(Response.class);
     Assert.assertEquals(JsonKey.SUCCESS, respone.get(JsonKey.RESPONSE));
@@ -64,9 +64,9 @@ public class TelemetryManagementActorTest {
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
     Request reqObj = new Request();
-    reqObj.setOperation("dispatchtelemetry");
-    reqObj.put(TelemetryController.BODY, body);
-    reqObj.put("headers", headers);
+    reqObj.setOperation(Constant.OPERATION_NAME);
+    reqObj.put(Constant.BODY, body);
+    reqObj.put(Constant.HEADERS, headers);
     subject.tell(reqObj, probe.getRef());
     Response respone = probe.expectMsgClass(Response.class);
     Assert.assertEquals(JsonKey.SUCCESS, respone.get(JsonKey.RESPONSE));

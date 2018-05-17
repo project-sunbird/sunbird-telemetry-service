@@ -22,10 +22,11 @@ import org.sunbird.common.models.util.ProjectLogger;
 import org.sunbird.common.request.Request;
 import org.sunbird.common.responsecode.ResponseCode;
 import org.sunbird.kafka.client.KafkaClient;
+import util.Constant;
 
 /** @author mahesh */
 @ActorConfig(
-  tasks = {"dispatchtelemetrytokafka"},
+  tasks = {Constant.DISPATCH_TELEMETRY_TO_KAFKA},
   asyncTasks = {}
 )
 public class KafkaTelemetryDispatcher extends BaseActor {
@@ -35,7 +36,7 @@ public class KafkaTelemetryDispatcher extends BaseActor {
   @Override
   public void onReceive(Request request) throws Throwable {
     String operation = request.getOperation();
-    if ("dispatchtelemetrytokafka".equals(operation)) {
+    if (Constant.DISPATCH_TELEMETRY_TO_KAFKA.equals(operation)) {
       List<String> events = getEvents(request);
       dispatchEvents(events);
       Response response = new Response();
@@ -63,7 +64,7 @@ public class KafkaTelemetryDispatcher extends BaseActor {
     } else if (body instanceof byte[]) {
       events = getEvents((byte[]) body);
     } else {
-      emptyRequestError("Please provide valid contnet-type.");
+      emptyRequestError(Constant.INVALID_CONTENT_TYPE_MSG);
     }
 
     return events;
@@ -77,8 +78,7 @@ public class KafkaTelemetryDispatcher extends BaseActor {
   }
 
   private List<String> getEvents(String body) throws Exception {
-    if (StringUtils.isBlank(body))
-      emptyRequestError("Please provide valid request body. request body is empty.");
+    if (StringUtils.isBlank(body)) emptyRequestError(Constant.INVALID_REQ_BODY_MSG);
 
     Request request = mapper.readValue(body, Request.class);
     List<String> events = new ArrayList<String>();
@@ -94,8 +94,7 @@ public class KafkaTelemetryDispatcher extends BaseActor {
   }
 
   private List<String> getEvents(byte[] body) throws Exception {
-    if (null == body)
-      emptyRequestError("Please provide valid request body. request body is incorrect.");
+    if (null == body) emptyRequestError(Constant.INVALID_REQ_BODY_MSG);
     try {
       List<String> events = new ArrayList<String>();
       InputStream is = new ByteArrayInputStream(body);
@@ -116,7 +115,7 @@ public class KafkaTelemetryDispatcher extends BaseActor {
       e.printStackTrace();
       throw new ProjectCommonException(
           ResponseCode.invalidRequestData.getErrorCode(),
-          "Please provide valid binary gzip file. File structure is invalid.",
+          Constant.INVALID_FILE_MSG,
           ResponseCode.CLIENT_ERROR.getResponseCode());
     }
   }

@@ -14,8 +14,12 @@ import org.sunbird.common.models.util.LoggerEnum;
 import org.sunbird.common.models.util.ProjectLogger;
 import org.sunbird.common.request.Request;
 import org.sunbird.telemetry.dispatcher.EkstepTelemetryDispatcher;
+import util.Constant;
 
-/** @author Mahesh Kumar Gangula */
+/**
+ * @author Mahesh Kumar Gangula This actor class will receiving telemetry request and write to
+ *     EKstep.
+ */
 @ActorConfig(
   tasks = {"dispatchtelemetry"},
   asyncTasks = {}
@@ -24,7 +28,6 @@ public class TelemetryManagerActor extends BaseActor {
 
   List<String> dispatchers = new ArrayList<String>();
   private static final String defaultDispacher = "ekstep";
-  private static final String actorOperation = "dispatchtelemetry";
 
   public TelemetryManagerActor() {
     getDispatchers();
@@ -41,16 +44,16 @@ public class TelemetryManagerActor extends BaseActor {
   private Request getDispatcherRequest(Request request, String dispatcher) {
     Request dispRequest = new Request();
     dispRequest.setRequest(request.getRequest());
-    dispRequest.setOperation(actorOperation + "to" + dispatcher);
+    dispRequest.setOperation(Constant.OPERATION_NAME + "to" + dispatcher);
     return dispRequest;
   }
 
   @Override
   public void onReceive(Request request) throws Throwable {
     String operation = request.getOperation();
-    if (actorOperation.equals(operation)) {
+    if (Constant.OPERATION_NAME.equals(operation)) {
       Object body = request.get("body");
-      Map<String, String[]> headers = (Map<String, String[]>) request.get("headers");
+      Map<String, String[]> headers = (Map<String, String[]>) request.get(Constant.HEADERS);
       if (body instanceof String) {
         EkstepTelemetryDispatcher.dispatch(headers, (String) body);
       } else if (body instanceof byte[]) {
@@ -71,7 +74,7 @@ public class TelemetryManagerActor extends BaseActor {
   }
 
   private void getDispatchers() {
-    String dispatchersStr = System.getenv("sunbird_telemetry_dispatchers");
+    String dispatchersStr = System.getenv(Constant.SUNBIRD_TELEMETRY_DISPATCH_ENV);
     if (StringUtils.isNotBlank(dispatchersStr)) {
       for (String name : dispatchersStr.toLowerCase().split(",")) {
         if (!defaultDispacher.equals(name)) {

@@ -17,6 +17,11 @@ import org.sunbird.common.models.util.PropertiesCache;
 import org.sunbird.common.models.util.RestUtil;
 import org.sunbird.common.responsecode.ResponseCode;
 
+/**
+ * THis is a uitl class , to write telemetry data into EkStep.
+ *
+ * @author Manzarul
+ */
 public class EkstepTelemetryDispatcher {
 
   public static boolean dispatch(Map<String, String[]> reqHeaders, String body) throws Exception {
