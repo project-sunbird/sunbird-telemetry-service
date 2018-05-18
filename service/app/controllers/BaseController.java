@@ -216,8 +216,8 @@ public class BaseController extends Controller {
    * This method will return api version. Assumption is version will always come first in url :EX
    * v1/user/create
    *
-   * @param path String
-   * @return String
+   * @param path api uri path value.
+   * @return version of api
    */
   public static String getApiVersion(String path) {
     if (StringUtils.isBlank(path)) {
@@ -230,7 +230,7 @@ public class BaseController extends Controller {
   /**
    * This method will provide api response id.
    *
-   * @return String
+   * @return api response id, that will help to trace the logs.
    */
   private static String getApiResponseId() {
     return "api.telemetry";

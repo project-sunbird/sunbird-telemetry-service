@@ -165,12 +165,10 @@ public class KafkaTelemetryDispatcher extends BaseActor {
         "BootStrap server value from ENV ==" + BOOTSTRAP_SERVERS, LoggerEnum.INFO.name());
     ProjectLogger.log("Kafka topic value from ENV ===" + topic, LoggerEnum.INFO.name());
     try {
-      System.out.println("Call start for telemetry Dispatcher");
-      producer = KafkaClient.initProducer(BOOTSTRAP_SERVERS, Constant.KAFKA_CLIENT_PRODUCER);
-      consumer = KafkaClient.initConsumer(BOOTSTRAP_SERVERS, Constant.KAFKA_CLIENT_CONSUMER);
-      System.out.println("Call ended for telemetry Dispatcher");
+      producer = KafkaClient.createProducer(BOOTSTRAP_SERVERS, Constant.KAFKA_CLIENT_PRODUCER);
+      consumer = KafkaClient.createConsumer(BOOTSTRAP_SERVERS, Constant.KAFKA_CLIENT_CONSUMER);
     } catch (Exception e) {
-      e.printStackTrace();
+      ProjectLogger.log("", e);
     }
   }
 }

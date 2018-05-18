@@ -25,7 +25,11 @@ import play.test.FakeApplication;
 import play.test.Helpers;
 import util.Constant;
 
-/** @author Mahesh Kumar Gangula */
+/**
+ * This class will contains test cases for telemetry controller. this will mock the actor call.
+ *
+ * @author Mahesh Kumar Gangula
+ */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(PowerMockRunner.class)
 public class TelemetryControllerTest {
@@ -66,7 +70,7 @@ public class TelemetryControllerTest {
     RequestBuilder request =
         new RequestBuilder().bodyText(body).uri("/v1/telemetry").method(Helpers.POST);
     Map<String, String[]> headers = new HashMap<String, String[]>();
-    headers.put("Content-Type", new String[] {"application/json"});
+    headers.put(Constant.CONTENT_TYPE, new String[] {Constant.APPLICATION_JSON});
     request.headers(headers);
     Result result = Helpers.route(request);
     assertEquals(200, result.status());
@@ -77,8 +81,8 @@ public class TelemetryControllerTest {
     File file = app.getFile("test/resources/telemetry.few.gz");
     byte[] data = readByteArrayFromZp(file);
     Map<String, String[]> headers = new HashMap<String, String[]>();
-    headers.put("Content-Type", new String[] {"application/zip"});
-    headers.put("accept-encoding", new String[] {"gzip"});
+    headers.put(Constant.CONTENT_TYPE, new String[] {Constant.APPLICATION_ZIP});
+    headers.put(Constant.ACCEPT_ENCODING, new String[] {"gzip"});
     RequestBuilder request =
         new RequestBuilder()
             .headers(headers)
@@ -96,7 +100,7 @@ public class TelemetryControllerTest {
     RequestBuilder request =
         new RequestBuilder().bodyText(body).uri("/v1/telemetry").method(Helpers.POST);
     Map<String, String[]> headers = new HashMap<String, String[]>();
-    headers.put("Content-Type", new String[] {"application/json"});
+    headers.put(Constant.CONTENT_TYPE, new String[] {Constant.APPLICATION_JSON});
     request.headers(headers);
     Result result = Helpers.route(request);
     assertEquals(200, result.status());
@@ -109,7 +113,7 @@ public class TelemetryControllerTest {
     RequestBuilder request =
         new RequestBuilder().bodyText(body).uri("/v1/telemetry").method(Helpers.POST);
     Map<String, String[]> headers = new HashMap<String, String[]>();
-    headers.put("Content-Type", new String[] {"application/json"});
+    headers.put(Constant.CONTENT_TYPE, new String[] {Constant.APPLICATION_JSON});
     request.headers(headers);
     Result result = Helpers.route(request);
     assertEquals(200, result.status());

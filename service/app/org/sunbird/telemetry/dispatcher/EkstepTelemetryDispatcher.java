@@ -16,6 +16,7 @@ import org.sunbird.common.models.util.ProjectLogger;
 import org.sunbird.common.models.util.PropertiesCache;
 import org.sunbird.common.models.util.RestUtil;
 import org.sunbird.common.responsecode.ResponseCode;
+import util.Constant;
 
 /**
  * THis is a uitl class , to write telemetry data into EkStep.
@@ -69,8 +70,8 @@ public class EkstepTelemetryDispatcher {
       }
     } catch (Exception e) {
       throw new ProjectCommonException(
-          "TELEMETRY_DISPATCHER_ERROR",
-          "Error while processing Ekstep telemetry dispatcher. Please try again later.",
+          Constant.TELEMETRY_DISPATCHER_ERROR,
+          Constant.TELEMETRY_PROCESSING_ERROR,
           ResponseCode.SERVER_ERROR.getResponseCode());
     }
   }

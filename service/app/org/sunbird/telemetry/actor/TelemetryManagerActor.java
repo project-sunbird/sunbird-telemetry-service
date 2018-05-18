@@ -17,8 +17,9 @@ import org.sunbird.telemetry.dispatcher.EkstepTelemetryDispatcher;
 import util.Constant;
 
 /**
- * @author Mahesh Kumar Gangula This actor class will receiving telemetry request and write to
- *     EKstep.
+ * This actor class will receiving telemetry request and write to EKstep.
+ *
+ * @author Mahesh Kumar Gangula
  */
 @ActorConfig(
   tasks = {"dispatchtelemetry"},
@@ -52,7 +53,7 @@ public class TelemetryManagerActor extends BaseActor {
   public void onReceive(Request request) throws Throwable {
     String operation = request.getOperation();
     if (Constant.OPERATION_NAME.equals(operation)) {
-      Object body = request.get("body");
+      Object body = request.get(JsonKey.BODY);
       Map<String, String[]> headers = (Map<String, String[]>) request.get(Constant.HEADERS);
       if (body instanceof String) {
         EkstepTelemetryDispatcher.dispatch(headers, (String) body);

@@ -1,7 +1,11 @@
 /** */
 package util;
 
-/** @author Manzarul This class will keep all the constant values. */
+/**
+ * This class will keep all the constant values.
+ *
+ * @author Manzarul
+ */
 public class Constant {
 
   public static final String CONTENT_TYPE = "content-type";
@@ -23,4 +27,11 @@ public class Constant {
   public static final String SUNBIRD_TELEMETRY_DISPATCH_ENV = "sunbird_telemetry_dispatchers";
   public static final String KAFKA_CLIENT_PRODUCER = "KafkaClientProducer";
   public static final String KAFKA_CLIENT_CONSUMER = "KafkaClientConsumer";
+  public static final String TELEMETRY_DISPATCHER_ERROR = "TELEMETRY_DISPATCHER_ERROR";
+  public static final String TELEMETRY_PROCESSING_ERROR =
+      "Error while processing Ekstep telemetry dispatcher. Please try again later.";
+  public static final String REQUEST_PROCESSING_TIME_ERROR =
+      "Request processing taking too long time. Please try again later.";
+  public static final String SERVER_ERROR =
+      "Something went wrong in server while processing the request";
 }

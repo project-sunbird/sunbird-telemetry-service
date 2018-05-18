@@ -19,7 +19,11 @@ import org.sunbird.common.responsecode.ResponseCode;
 import org.sunbird.telemetry.actor.TelemetryManagerActor;
 import util.Constant;
 
-/** @author Manzarul */
+/**
+ * This class will have test cases for telemetry actor.
+ *
+ * @author Manzarul
+ */
 public class TelemetryManagementActorTest {
   private static final Props props = Props.create(TelemetryManagerActor.class);
   private static ActorSystem system;
