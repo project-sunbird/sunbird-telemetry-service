@@ -3,7 +3,6 @@ package util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import controllers.TelemetryController;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +24,7 @@ public class TelemetryRequestValidator {
   private static final int ERROR_CODE = ResponseCode.CLIENT_ERROR.getResponseCode();
 
   public static void validateTelemetryRequest(Request request, String reqType) {
-    if (TelemetryController.GZIP.equalsIgnoreCase(reqType)) {
+    if (Constant.GZIP.equalsIgnoreCase(reqType)) {
       validateGZReq(request);
     } else {
       validateJsonReq(request);
@@ -39,7 +38,7 @@ public class TelemetryRequestValidator {
   private static void validateGZReq(Request request) {}
 
   private static void validateProperData(Request request) {
-    String requestedData = (String) request.get(TelemetryController.BODY);
+    String requestedData = (String) request.get(Constant.BODY);
     Map<String, Object> map = null;
     try {
       map = mapper.readValue(requestedData, new TypeReference<HashMap<String, Object>>() {});
