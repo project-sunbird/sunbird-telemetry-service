@@ -21,4 +21,6 @@ public class Constant {
       "provide valid request body. Request body is incorrect.";
   public static final String INVALID_CONTENT_TYPE_MSG = "Please provide valid contnet-type.";
   public static final String SUNBIRD_TELEMETRY_DISPATCH_ENV = "sunbird_telemetry_dispatchers";
+  public static final String KAFKA_CLIENT_PRODUCER = "KafkaClientProducer";
+  public static final String KAFKA_CLIENT_CONSUMER = "KafkaClientConsumer";
 }

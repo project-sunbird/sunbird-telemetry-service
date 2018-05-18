@@ -11,6 +11,8 @@ import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.sunbird.actor.core.BaseActor;
 import org.sunbird.actor.router.ActorConfig;
@@ -24,14 +26,22 @@ import org.sunbird.common.responsecode.ResponseCode;
 import org.sunbird.kafka.client.KafkaClient;
 import util.Constant;
 
-/** @author mahesh */
+/** @author mahesh This class will responsible for writing data into kafka. */
 @ActorConfig(
   tasks = {Constant.DISPATCH_TELEMETRY_TO_KAFKA},
   asyncTasks = {}
 )
 public class KafkaTelemetryDispatcher extends BaseActor {
 
+  private static String BOOTSTRAP_SERVERS = System.getenv("sunbird_telemetry_kafka_servers_config");
+  private static String topic = System.getenv("sunbird_telemetry_kafka_topic");
   private ObjectMapper mapper = new ObjectMapper();
+  private static Consumer<Long, String> consumer;
+  private static Producer<Long, String> producer;
+
+  static {
+    initKafkaClient();
+  }
 
   @Override
   public void onReceive(Request request) throws Throwable {
@@ -47,18 +57,35 @@ public class KafkaTelemetryDispatcher extends BaseActor {
     }
   }
 
+  /**
+   * This method will receive list of event. Each event will be a string object. and sent to kafka ,
+   * the send method is Asynchronous, at same time user can send multiple records without blocking.
+   *
+   * @param events List<String>
+   */
   private void dispatchEvents(List<String> events) {
     for (String event : events) {
-      ProducerRecord<Long, String> record =
-          new ProducerRecord<Long, String>(KafkaClient.getTopic(), event);
-      KafkaClient.getProducer().send(record);
+      ProducerRecord<Long, String> record = new ProducerRecord<Long, String>(topic, event);
+      if (producer != null) {
+        producer.send(record);
+      } else {
+        ProjectLogger.log("Kafka producer is not initialize==", LoggerEnum.INFO.name());
+      }
     }
     ProjectLogger.log("Kafka telemetry dispatcher status: successful.", LoggerEnum.INFO.name());
   }
 
+  /**
+   * This method will extract requested telemetry data from Request object. data is coming inside
+   * body key. it can have value as string or byte [].
+   *
+   * @param request Request
+   * @return List<String>
+   * @throws Exception
+   */
   private List<String> getEvents(Request request) throws Exception {
     List<String> events = null;
-    Object body = request.get("body");
+    Object body = request.get(JsonKey.BODY);
     if (body instanceof String) {
       events = getEvents((String) body);
     } else if (body instanceof byte[]) {
@@ -83,7 +110,7 @@ public class KafkaTelemetryDispatcher extends BaseActor {
     Request request = mapper.readValue(body, Request.class);
     List<String> events = new ArrayList<String>();
     if (request != null && MapUtils.isNotEmpty(request.getRequest())) {
-      List<Object> objList = (List<Object>) request.getRequest().get("events");
+      List<Object> objList = (List<Object>) request.getRequest().get(JsonKey.EVENTS);
       if (CollectionUtils.isNotEmpty(objList)) {
         for (Object obj : objList) {
           events.add(mapper.writeValueAsString(obj));
@@ -130,5 +157,20 @@ public class KafkaTelemetryDispatcher extends BaseActor {
       }
     }
     return events;
+  }
+
+  /** This method will do the initialization of kafka consumer and producer. */
+  private static void initKafkaClient() {
+    ProjectLogger.log(
+        "BootStrap server value from ENV ==" + BOOTSTRAP_SERVERS, LoggerEnum.INFO.name());
+    ProjectLogger.log("Kafka topic value from ENV ===" + topic, LoggerEnum.INFO.name());
+    try {
+      System.out.println("Call start for telemetry Dispatcher");
+      producer = KafkaClient.initProducer(BOOTSTRAP_SERVERS, Constant.KAFKA_CLIENT_PRODUCER);
+      consumer = KafkaClient.initConsumer(BOOTSTRAP_SERVERS, Constant.KAFKA_CLIENT_CONSUMER);
+      System.out.println("Call ended for telemetry Dispatcher");
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 }
