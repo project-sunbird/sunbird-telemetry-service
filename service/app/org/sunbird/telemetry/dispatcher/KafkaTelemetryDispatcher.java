@@ -26,7 +26,11 @@ import org.sunbird.common.responsecode.ResponseCode;
 import org.sunbird.kafka.client.KafkaClient;
 import util.Constant;
 
-/** @author mahesh This class will responsible for writing data into kafka. */
+/**
+ * This class will responsible for writing data into kafka.
+ *
+ * @author mahesh
+ */
 @ActorConfig(
   tasks = {Constant.DISPATCH_TELEMETRY_TO_KAFKA},
   asyncTasks = {}

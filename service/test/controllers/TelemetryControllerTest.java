@@ -19,6 +19,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.sunbird.common.responsecode.ResponseCode;
+import org.sunbird.controllers.BaseController;
 import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import play.test.FakeApplication;
