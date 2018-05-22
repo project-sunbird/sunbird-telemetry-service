@@ -35,10 +35,11 @@ import util.Constant;
   tasks = {Constant.DISPATCH_TELEMETRY_TO_KAFKA},
   asyncTasks = {}
 )
-public class KafkaTelemetryDispatcher extends BaseActor {
+public class KafkaTelemetryDispatcherActor extends BaseActor {
 
-  private static String BOOTSTRAP_SERVERS = System.getenv("sunbird_telemetry_kafka_servers_config");
-  private static String topic = System.getenv("sunbird_telemetry_kafka_topic");
+  private static String BOOTSTRAP_SERVERS =
+      System.getenv(Constant.SUNBIRD_TELEMETRY_KAFKA_SERVICE_CONFIG);
+  private static String topic = System.getenv(Constant.SUNBIRD_TELEMETRY_KAFKA_TOPIC);
   private ObjectMapper mapper = new ObjectMapper();
   private static Consumer<Long, String> consumer;
   private static Producer<Long, String> producer;
