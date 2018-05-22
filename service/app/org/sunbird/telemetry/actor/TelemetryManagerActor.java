@@ -45,22 +45,27 @@ public class TelemetryManagerActor extends BaseActor {
   private Request getDispatcherRequest(Request request, String dispatcher) {
     Request dispRequest = new Request();
     dispRequest.setRequest(request.getRequest());
-    dispRequest.setOperation(Constant.OPERATION_NAME + "to" + dispatcher);
+    dispRequest.setOperation(Constant.DISPATCH_TELEMETRY_OPERATION_NAME + "to" + dispatcher);
     return dispRequest;
   }
 
   @Override
   public void onReceive(Request request) throws Throwable {
     String operation = request.getOperation();
-    if (Constant.OPERATION_NAME.equals(operation)) {
+    String ekstepStorageToggle = System.getenv(Constant.EKSTEP_TELEMETRY_STORAGE_TOGGLE);
+    if (Constant.DISPATCH_TELEMETRY_OPERATION_NAME.equals(operation)) {
       Object body = request.get(JsonKey.BODY);
       Map<String, String[]> headers = (Map<String, String[]>) request.get(Constant.HEADERS);
-      if (body instanceof String) {
-        EkstepTelemetryDispatcher.dispatch(headers, (String) body);
-      } else if (body instanceof byte[]) {
-        EkstepTelemetryDispatcher.dispatch(headers, (byte[]) body);
-      } else {
-        onReceiveUnsupportedMessage(operation);
+      // if ekstep_telemetry_storage_toggle is on then only send the telemetry value to ekstep.
+      if (StringUtils.isNotBlank(ekstepStorageToggle)
+          && Constant.ON.equalsIgnoreCase(ekstepStorageToggle)) {
+        if (body instanceof String) {
+          EkstepTelemetryDispatcher.dispatch(headers, (String) body);
+        } else if (body instanceof byte[]) {
+          EkstepTelemetryDispatcher.dispatch(headers, (byte[]) body);
+        } else {
+          onReceiveUnsupportedMessage(operation);
+        }
       }
       for (String name : dispatchers) {
         dispatch(name, request);

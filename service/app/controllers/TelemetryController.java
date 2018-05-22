@@ -1,4 +1,3 @@
-/** */
 package controllers;
 
 import org.apache.commons.lang3.StringUtils;
@@ -30,7 +29,7 @@ public class TelemetryController extends BaseController {
       String contentTypeHeader = request().getHeader(Constant.CONTENT_TYPE);
       String encodingHeader = request().getHeader(Constant.ACCEPT_ENCODING);
       Request request = new Request();
-      request.setOperation(Constant.OPERATION_NAME);
+      request.setOperation(Constant.DISPATCH_TELEMETRY_OPERATION_NAME);
       request.put(Constant.HEADERS, request().headers());
       if (Constant.APPLICATION_JSON.equalsIgnoreCase(contentTypeHeader)) {
         ProjectLogger.log("Receiving telemetry in json format.", LoggerEnum.INFO.name());
@@ -51,7 +50,8 @@ public class TelemetryController extends BaseController {
 
     } catch (Exception e) {
       ProjectLogger.log(e.getMessage(), e);
-      return Promise.<Result>pure(createCommonExceptionResult(request().path(), e));
+      return Promise.<Result>pure(
+          createCommonExceptionResult(request().path(), e, request().method()));
     }
   }
 }

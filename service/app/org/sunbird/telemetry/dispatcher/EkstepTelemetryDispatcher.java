@@ -1,5 +1,6 @@
 package org.sunbird.telemetry.dispatcher;
 
+import com.google.common.net.HttpHeaders;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
@@ -10,7 +11,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.common.exception.ProjectCommonException;
-import org.sunbird.common.models.util.JsonKey;
 import org.sunbird.common.models.util.LoggerEnum;
 import org.sunbird.common.models.util.ProjectLogger;
 import org.sunbird.common.models.util.PropertiesCache;
@@ -19,7 +19,7 @@ import org.sunbird.common.responsecode.ResponseCode;
 import util.Constant;
 
 /**
- * THis is a uitl class , to write telemetry data into EkStep.
+ * THis is a util class , to write telemetry data into EkStep.
  *
  * @author Manzarul
  */
@@ -49,7 +49,10 @@ public class EkstepTelemetryDispatcher {
         .stream()
         .filter(
             x ->
-                Arrays.asList("content-encoding", "accept-encoding", "content-type")
+                Arrays.asList(
+                        HttpHeaders.CONTENT_ENCODING,
+                        HttpHeaders.ACCEPT_ENCODING,
+                        HttpHeaders.CONTENT_TYPE)
                     .contains(x.getKey().toLowerCase()))
         .collect(Collectors.toMap(e -> e.getKey(), e -> StringUtils.join(e.getValue(), ",")));
   }
@@ -61,9 +64,6 @@ public class EkstepTelemetryDispatcher {
       ProjectLogger.log(
           "Ekstep telemetry dispatcher status: " + result.getStatus(), LoggerEnum.INFO.name());
       if (!RestUtil.isSuccessful(result)) {
-        // TODO: 1. Always returning server_error. Need to improve.
-        // TODO: 2. Errors list is not returning which is there in Ekstep response. We
-        // should return this.
         String err = RestUtil.getFromResponse(result, "params.err");
         String message = RestUtil.getFromResponse(result, "params.errmsg");
         throw new ProjectCommonException(err, message, ResponseCode.SERVER_ERROR.getResponseCode());
@@ -78,7 +78,7 @@ public class EkstepTelemetryDispatcher {
 
   private static String telemetryAPIURL() {
     String apiUrl = RestUtil.getBasePath();
-    apiUrl += PropertiesCache.getInstance().getProperty(JsonKey.EKSTEP_TELEMETRY_API_URL);
+    apiUrl += PropertiesCache.getInstance().getProperty(Constant.EKSTEP_TELEMETRY_API_URL);
     return apiUrl;
   }
 }

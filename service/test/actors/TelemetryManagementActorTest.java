@@ -54,7 +54,7 @@ public class TelemetryManagementActorTest {
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
     Request reqObj = new Request();
-    reqObj.setOperation(Constant.OPERATION_NAME);
+    reqObj.setOperation(Constant.DISPATCH_TELEMETRY_OPERATION_NAME);
     reqObj.put(Constant.BODY, body);
     reqObj.put(Constant.HEADERS, headers);
     subject.tell(reqObj, probe.getRef());
@@ -68,7 +68,7 @@ public class TelemetryManagementActorTest {
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
     Request reqObj = new Request();
-    reqObj.setOperation(Constant.OPERATION_NAME);
+    reqObj.setOperation(Constant.DISPATCH_TELEMETRY_OPERATION_NAME);
     reqObj.put(Constant.BODY, body);
     reqObj.put(Constant.HEADERS, headers);
     subject.tell(reqObj, probe.getRef());

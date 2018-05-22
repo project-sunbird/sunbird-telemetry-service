@@ -1,7 +1,5 @@
-/target/
+**/target/**
 project/project
-project/target
-target
 tmp
 .history
 dist
