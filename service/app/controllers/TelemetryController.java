@@ -14,15 +14,16 @@ import play.mvc.Result;
 import util.Constant;
 
 /**
- * This controller will handle all sunbird telemetry request data.
+ * Telemetry controller handles Telemetry APIs.
  *
  * @author Mahesh Kumar Gangula
  */
 public class TelemetryController extends BaseController {
   /**
-   * This method will receive the telemetry data and send it to EKStep to process it.
+   * Save telemetry information. Request body either with content type application/json or content
+   * encoding gzip.
    *
-   * @return F.Promise<Result>
+   * @return Return a promise for telemetry API result.
    */
   public F.Promise<Result> save() {
     try {
@@ -32,12 +33,14 @@ public class TelemetryController extends BaseController {
       request.setOperation(Constant.DISPATCH_TELEMETRY_OPERATION_NAME);
       request.put(Constant.HEADERS, request().headers());
       if (Constant.APPLICATION_JSON.equalsIgnoreCase(contentTypeHeader)) {
-        ProjectLogger.log("Receiving telemetry in json format.", LoggerEnum.INFO.name());
+        ProjectLogger.log(
+            "TelemetryController:save: Received telemetry in JSON format.", LoggerEnum.INFO.name());
         request.put(Constant.BODY, Json.stringify(request().body().asJson()));
       } else if ((Constant.APPLICATION_OCTET.equalsIgnoreCase(contentTypeHeader)
               || Constant.APPLICATION_ZIP.equalsIgnoreCase(contentTypeHeader))
           && StringUtils.containsIgnoreCase(encodingHeader, Constant.GZIP)) {
-        ProjectLogger.log("Receiving telemetry in gzip format.", LoggerEnum.INFO.name());
+        ProjectLogger.log(
+            "TelemetryController:save: Received telemetry in gzip format.", LoggerEnum.INFO.name());
         byte[] body = request().body().asRaw().asBytes();
         request.put(Constant.BODY, body);
       } else {

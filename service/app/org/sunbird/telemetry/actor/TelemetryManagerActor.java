@@ -17,7 +17,7 @@ import org.sunbird.telemetry.dispatcher.EkstepTelemetryDispatcher;
 import util.Constant;
 
 /**
- * This actor class will receiving telemetry request and write to EKstep.
+ * TelemetryManagerActor handles Telemetry requests.
  *
  * @author Mahesh Kumar Gangula
  */
@@ -34,7 +34,7 @@ public class TelemetryManagerActor extends BaseActor {
     getDispatchers();
   }
 
-  private void dispatch(String dispatcher, Request baseRequest) throws Exception {
+  private void dispatch(String dispatcher, Request baseRequest) {
     Request request = getDispatcherRequest(baseRequest, dispatcher);
     ActorRef actor = (ActorRef) SunbirdMWService.getRequestRouter();
     if (null != actor) {
@@ -43,10 +43,10 @@ public class TelemetryManagerActor extends BaseActor {
   }
 
   private Request getDispatcherRequest(Request request, String dispatcher) {
-    Request dispRequest = new Request();
-    dispRequest.setRequest(request.getRequest());
-    dispRequest.setOperation(Constant.DISPATCH_TELEMETRY_OPERATION_NAME + "to" + dispatcher);
-    return dispRequest;
+    Request dispatcherRequest = new Request();
+    dispatcherRequest.setRequest(request.getRequest());
+    dispatcherRequest.setOperation(Constant.DISPATCH_TELEMETRY_OPERATION_NAME + "to" + dispatcher);
+    return dispatcherRequest;
   }
 
   @Override
@@ -87,6 +87,9 @@ public class TelemetryManagerActor extends BaseActor {
         }
       }
     }
-    ProjectLogger.log("Telemetry dispatcher names.", dispatchers, LoggerEnum.INFO.name());
+    ProjectLogger.log(
+        "TelemetryManagerActor:getDispatchers: Telemetry dispatcher names = ",
+        dispatchers,
+        LoggerEnum.INFO.name());
   }
 }

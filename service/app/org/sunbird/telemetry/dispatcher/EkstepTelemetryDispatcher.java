@@ -19,7 +19,7 @@ import org.sunbird.common.responsecode.ResponseCode;
 import util.Constant;
 
 /**
- * THis is a util class , to write telemetry data into EkStep.
+ * Dispatcher responsible for storing Telemetry in Ekstep platform.
  *
  * @author Manzarul
  */
@@ -41,8 +41,8 @@ public class EkstepTelemetryDispatcher {
 
   private static Map<String, String> getHeaders(Map<String, String[]> headers) {
     if (headers == null) {
-      ProjectLogger.log("Header values are coming as null");
-      return new HashMap<String, String>();
+      ProjectLogger.log("EkstepTelemetryDispatcher:getHeaders: Headers are null.");
+      return new HashMap<>();
     }
     return headers
         .entrySet()
@@ -57,12 +57,14 @@ public class EkstepTelemetryDispatcher {
         .collect(Collectors.toMap(e -> e.getKey(), e -> StringUtils.join(e.getValue(), ",")));
   }
 
-  private static void executeRequest(BaseRequest request) throws Exception {
-    HttpResponse<JsonNode> result = null;
+  private static void executeRequest(BaseRequest request) {
+    HttpResponse<JsonNode> result;
     try {
       result = RestUtil.execute(request);
       ProjectLogger.log(
-          "Ekstep telemetry dispatcher status: " + result.getStatus(), LoggerEnum.INFO.name());
+          "EkstepTelemetryDispatcher:executeRequest: Ekstep telemetry dispatcher status = "
+              + result.getStatus(),
+          LoggerEnum.INFO.name());
       if (!RestUtil.isSuccessful(result)) {
         String err = RestUtil.getFromResponse(result, "params.err");
         String message = RestUtil.getFromResponse(result, "params.errmsg");

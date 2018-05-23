@@ -11,7 +11,6 @@ import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.sunbird.actor.core.BaseActor;
@@ -27,9 +26,9 @@ import org.sunbird.kafka.client.KafkaClient;
 import util.Constant;
 
 /**
- * This class will responsible for writing data into kafka.
+ * KafkaTelemetryDispatcherActor handles request to dispatch a telemetry message on Kafka.
  *
- * @author mahesh
+ * @author Mahesh Kumar Gangula
  */
 @ActorConfig(
   tasks = {Constant.DISPATCH_TELEMETRY_TO_KAFKA},
@@ -41,7 +40,6 @@ public class KafkaTelemetryDispatcherActor extends BaseActor {
       System.getenv(Constant.SUNBIRD_TELEMETRY_KAFKA_SERVICE_CONFIG);
   private static String topic = System.getenv(Constant.SUNBIRD_TELEMETRY_KAFKA_TOPIC);
   private ObjectMapper mapper = new ObjectMapper();
-  private static Consumer<Long, String> consumer;
   private static Producer<Long, String> producer;
 
   static {
@@ -63,29 +61,31 @@ public class KafkaTelemetryDispatcherActor extends BaseActor {
   }
 
   /**
-   * This method will receive list of event. Each event will be a string object. and sent to kafka ,
-   * the send method is Asynchronous, at same time user can send multiple records without blocking.
+   * Dispatches a telemetry message on Kafka for each event in received list.
    *
-   * @param events List<String>
+   * @param events List of telemetry events
    */
   private void dispatchEvents(List<String> events) {
     for (String event : events) {
-      ProducerRecord<Long, String> record = new ProducerRecord<Long, String>(topic, event);
+      ProducerRecord<Long, String> record = new ProducerRecord<>(topic, event);
       if (producer != null) {
         producer.send(record);
       } else {
-        ProjectLogger.log("Kafka producer is not initialize==", LoggerEnum.INFO.name());
+        ProjectLogger.log(
+            "KafkaTelemetryDispatcherActor:dispatchEvents: Kafka producer is not initialised.",
+            LoggerEnum.INFO.name());
       }
     }
-    ProjectLogger.log("Kafka telemetry dispatcher status: successful.", LoggerEnum.INFO.name());
+    ProjectLogger.log(
+        "KafkaTelemetryDispatcherActor:dispatchEvents: Events successfully dispatched.",
+        LoggerEnum.INFO.name());
   }
 
   /**
-   * This method will extract requested telemetry data from Request object. data is coming inside
-   * body key. it can have value as string or byte [].
+   * Construct a list of telemetry events based on request data.
    *
-   * @param request Request
-   * @return List<String>
+   * @param request Request with telemetry events in JSON string or gzip byte array format
+   * @return List of telemetry events
    * @throws Exception
    */
   private List<String> getEvents(Request request) throws Exception {
@@ -113,7 +113,7 @@ public class KafkaTelemetryDispatcherActor extends BaseActor {
     if (StringUtils.isBlank(body)) emptyRequestError(Constant.INVALID_REQ_BODY_MSG);
 
     Request request = mapper.readValue(body, Request.class);
-    List<String> events = new ArrayList<String>();
+    List<String> events = new ArrayList<>();
     if (request != null && MapUtils.isNotEmpty(request.getRequest())) {
       List<Object> objList = (List<Object>) request.getRequest().get(JsonKey.EVENTS);
       if (CollectionUtils.isNotEmpty(objList)) {
@@ -125,7 +125,7 @@ public class KafkaTelemetryDispatcherActor extends BaseActor {
     return events;
   }
 
-  private List<String> getEvents(byte[] body) throws Exception {
+  private List<String> getEvents(byte[] body) {
     if (null == body) emptyRequestError(Constant.INVALID_REQ_BODY_MSG);
     try {
       List<String> events = new ArrayList<String>();
@@ -153,7 +153,7 @@ public class KafkaTelemetryDispatcherActor extends BaseActor {
   }
 
   private List<String> getEvents(List<Object> objList) throws Exception {
-    List<String> events = new ArrayList<String>();
+    List<String> events = new ArrayList<>();
     if (null != objList && !objList.isEmpty()) {
       for (Object event : objList) {
         if (null != event) {
@@ -164,16 +164,17 @@ public class KafkaTelemetryDispatcherActor extends BaseActor {
     return events;
   }
 
-  /** This method will do the initialization of kafka consumer and producer. */
+  /** Initialises Kafka producer required for dispatching messages on Kafka. */
   private static void initKafkaClient() {
     ProjectLogger.log(
-        "BootStrap server value from ENV ==" + BOOTSTRAP_SERVERS, LoggerEnum.INFO.name());
-    ProjectLogger.log("Kafka topic value from ENV ===" + topic, LoggerEnum.INFO.name());
+        "KafkaTelemetryDispatcherActor:initKafkaClient: Bootstrap servers = " + BOOTSTRAP_SERVERS,
+        LoggerEnum.INFO.name());
+    ProjectLogger.log(
+        "KafkaTelemetryDispatcherActor:initKafkaClient: topic = " + topic, LoggerEnum.INFO.name());
     try {
       producer = KafkaClient.createProducer(BOOTSTRAP_SERVERS, Constant.KAFKA_CLIENT_PRODUCER);
-      consumer = KafkaClient.createConsumer(BOOTSTRAP_SERVERS, Constant.KAFKA_CLIENT_CONSUMER);
     } catch (Exception e) {
-      ProjectLogger.log("", e);
+      ProjectLogger.log("KafkaTelemetryDispatcherActor:initKafkaClient: An exception occurred.", e);
     }
   }
 }

@@ -94,7 +94,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.sunbird</groupId>
-			<artifactId>common-service-client</artifactId>
+			<artifactId>common-service</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>

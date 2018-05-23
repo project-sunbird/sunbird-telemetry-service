@@ -4,11 +4,13 @@ node('build-slave') {
 
     currentBuild.result = "SUCCESS"
     cleanWs()
+
     try {
 
         stage('Checkout') {
 
             checkout scm
+
         }
 
         stage('Build') {
@@ -26,6 +28,7 @@ node('build-slave') {
         }
 
         stage('Publish') {
+
             echo 'Push to Repo'
             sh 'ls -al ~/'
             sh('chmod 777 ./dockerPushToRepo.sh')
@@ -33,10 +36,13 @@ node('build-slave') {
             sh './metadata.sh > metadata.json'
             sh 'cat metadata.json'
             archive includes: "metadata.json"
+
         }
     } catch (err) {
+
         currentBuild.result = "FAILURE"
         throw err
+
     }
 
 }
