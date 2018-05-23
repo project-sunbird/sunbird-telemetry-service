@@ -126,7 +126,7 @@ public class TelemetryControllerTest {
    * @param file
    * @return
    */
-  private byte[] readByteArrayFromZp(File file) {
+  public static byte[] readByteArrayFromZp(File file) {
     byte[] fileData = null;
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     GZIPInputStream in = null;
