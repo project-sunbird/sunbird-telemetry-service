@@ -4,6 +4,7 @@ import javax.inject.Inject;
 import play.api.mvc.EssentialFilter;
 import play.http.HttpFilters;
 
+/** Hook custom filters (logging filter) into play. */
 public class Filters implements HttpFilters {
 
   private final LoggingFilter loggingFilter;
