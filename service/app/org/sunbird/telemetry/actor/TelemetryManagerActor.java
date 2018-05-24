@@ -30,6 +30,7 @@ public class TelemetryManagerActor extends BaseActor {
 
   List<String> dispatchers = new ArrayList<String>();
   private static final String defaultDispacher = "ekstep";
+  private TelemetryPropertiesCache cache = TelemetryPropertiesCache.getInstance();
 
   public TelemetryManagerActor() {
     getDispatchers();
@@ -54,13 +55,12 @@ public class TelemetryManagerActor extends BaseActor {
   @Override
   public void onReceive(Request request) throws Throwable {
     String operation = request.getOperation();
-    String ekstepStorageToggle =
-        TelemetryPropertiesCache.getInstance()
-            .readProperty(Constant.EKSTEP_TELEMETRY_STORAGE_TOGGLE);
+    String ekstepStorageToggle = cache.readProperty(Constant.EKSTEP_TELEMETRY_STORAGE_TOGGLE);
     if (Constant.DISPATCH_TELEMETRY_OPERATION_NAME.equals(operation)) {
       Object body = request.get(JsonKey.BODY);
       Map<String, String[]> headers = (Map<String, String[]>) request.get(Constant.HEADERS);
-      // if ekstep_telemetry_storage_toggle is on then only send the telemetry value to ekstep.
+      // if ekstep_telemetry_storage_toggle is on then only send the telemetry value
+      // to ekstep.
       if (StringUtils.isNotBlank(ekstepStorageToggle)
           && Constant.ON.equalsIgnoreCase(ekstepStorageToggle)) {
         if (body instanceof String) {
@@ -84,9 +84,7 @@ public class TelemetryManagerActor extends BaseActor {
   }
 
   private void getDispatchers() {
-    String dispatchersStr =
-        TelemetryPropertiesCache.getInstance()
-            .readProperty(Constant.SUNBIRD_TELEMETRY_DISPATCH_ENV);
+    String dispatchersStr = cache.readProperty(Constant.SUNBIRD_TELEMETRY_DISPATCH_ENV);
     if (StringUtils.isNotBlank(dispatchersStr)) {
       for (String name : dispatchersStr.toLowerCase().split(",")) {
         if (!defaultDispacher.equals(name)) {
