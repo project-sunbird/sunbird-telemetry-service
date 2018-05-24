@@ -1,6 +1,7 @@
 package org.sunbird.telemetry.dispatcher;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.typesafe.config.Config;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -23,9 +24,9 @@ import org.sunbird.common.models.util.ProjectLogger;
 import org.sunbird.common.request.Request;
 import org.sunbird.common.responsecode.ResponseCode;
 import org.sunbird.kafka.client.KafkaClient;
+import org.sunbird.util.ConfigUtil;
 import util.Constant;
 import util.Message;
-import util.TelemetryPropertiesCache;
 
 /**
  * KafkaTelemetryDispatcherActor handles request to dispatch a telemetry message on Kafka.
@@ -38,10 +39,10 @@ import util.TelemetryPropertiesCache;
 )
 public class KafkaTelemetryDispatcherActor extends BaseActor {
 
-  private static TelemetryPropertiesCache cache = TelemetryPropertiesCache.getInstance();
+  private static Config config = ConfigUtil.getConfig();
   private static String BOOTSTRAP_SERVERS =
-      cache.readProperty(Constant.SUNBIRD_TELEMETRY_KAFKA_SERVICE_CONFIG);
-  private static String topic = cache.readProperty(Constant.SUNBIRD_TELEMETRY_KAFKA_TOPIC);
+      config.getString(Constant.SUNBIRD_TELEMETRY_KAFKA_SERVICE_CONFIG);
+  private static String topic = config.getString(Constant.SUNBIRD_TELEMETRY_KAFKA_TOPIC);
   private ObjectMapper mapper = new ObjectMapper();
   private static Producer<Long, String> producer;
 

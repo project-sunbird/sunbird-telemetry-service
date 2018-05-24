@@ -1,6 +1,7 @@
 package org.sunbird.telemetry.actor;
 
 import akka.actor.ActorRef;
+import com.typesafe.config.Config;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -14,8 +15,8 @@ import org.sunbird.common.models.util.LoggerEnum;
 import org.sunbird.common.models.util.ProjectLogger;
 import org.sunbird.common.request.Request;
 import org.sunbird.telemetry.dispatcher.EkstepTelemetryDispatcher;
+import org.sunbird.util.ConfigUtil;
 import util.Constant;
-import util.TelemetryPropertiesCache;
 
 /**
  * TelemetryManagerActor handles Telemetry requests.
@@ -30,7 +31,7 @@ public class TelemetryManagerActor extends BaseActor {
 
   List<String> dispatchers = new ArrayList<String>();
   private static final String defaultDispacher = "ekstep";
-  private TelemetryPropertiesCache cache = TelemetryPropertiesCache.getInstance();
+  private static Config config = ConfigUtil.getConfig();
 
   public TelemetryManagerActor() {
     getDispatchers();
@@ -55,7 +56,7 @@ public class TelemetryManagerActor extends BaseActor {
   @Override
   public void onReceive(Request request) throws Throwable {
     String operation = request.getOperation();
-    String ekstepStorageToggle = cache.readProperty(Constant.EKSTEP_TELEMETRY_STORAGE_TOGGLE);
+    String ekstepStorageToggle = config.getString(Constant.EKSTEP_TELEMETRY_STORAGE_TOGGLE);
     if (Constant.DISPATCH_TELEMETRY_OPERATION_NAME.equals(operation)) {
       Object body = request.get(JsonKey.BODY);
       Map<String, String[]> headers = (Map<String, String[]>) request.get(Constant.HEADERS);
@@ -84,7 +85,7 @@ public class TelemetryManagerActor extends BaseActor {
   }
 
   private void getDispatchers() {
-    String dispatchersStr = cache.readProperty(Constant.SUNBIRD_TELEMETRY_DISPATCH_ENV);
+    String dispatchersStr = config.getString(Constant.SUNBIRD_TELEMETRY_DISPATCH_ENV);
     if (StringUtils.isNotBlank(dispatchersStr)) {
       for (String name : dispatchersStr.toLowerCase().split(",")) {
         if (!defaultDispacher.equals(name)) {

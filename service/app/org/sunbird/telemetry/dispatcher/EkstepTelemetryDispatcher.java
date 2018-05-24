@@ -5,6 +5,7 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.request.BaseRequest;
+import com.typesafe.config.Config;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,9 +16,9 @@ import org.sunbird.common.models.util.LoggerEnum;
 import org.sunbird.common.models.util.ProjectLogger;
 import org.sunbird.common.models.util.RestUtil;
 import org.sunbird.common.responsecode.ResponseCode;
+import org.sunbird.util.ConfigUtil;
 import util.Constant;
 import util.Message;
-import util.TelemetryPropertiesCache;
 
 /**
  * Dispatcher responsible for storing Telemetry in Ekstep platform.
@@ -25,6 +26,7 @@ import util.TelemetryPropertiesCache;
  * @author Manzarul
  */
 public class EkstepTelemetryDispatcher {
+  private static Config config = ConfigUtil.getConfig();
 
   public static boolean dispatch(Map<String, String[]> reqHeaders, String body) throws Exception {
     Map<String, String> headers = getHeaders(reqHeaders);
@@ -81,8 +83,7 @@ public class EkstepTelemetryDispatcher {
 
   private static String telemetryAPIURL() {
     String apiUrl = RestUtil.getBasePath();
-    apiUrl +=
-        TelemetryPropertiesCache.getInstance().readProperty(Constant.EKSTEP_TELEMETRY_API_URL);
+    apiUrl += config.getString(Constant.EKSTEP_TELEMETRY_API_URL);
     return apiUrl;
   }
 }

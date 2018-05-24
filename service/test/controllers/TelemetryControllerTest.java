@@ -25,6 +25,7 @@ import play.mvc.Result;
 import play.test.FakeApplication;
 import play.test.Helpers;
 import util.Constant;
+import util.Message;
 
 /**
  * This class will contains test cases for telemetry controller. this will mock the actor call.
@@ -59,7 +60,7 @@ public class TelemetryControllerTest {
     Result result = Helpers.route(request);
     String response = Helpers.contentAsString(result);
     assertTrue(response.contains(ResponseCode.invalidRequestData.getErrorCode()));
-    assertTrue(response.contains(Constant.INVALID_HEADER_MSG));
+    assertTrue(response.contains(Message.INVALID_HEADER_MSG));
     assertEquals(400, result.status());
   }
 
