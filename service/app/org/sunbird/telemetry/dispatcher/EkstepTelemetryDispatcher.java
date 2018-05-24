@@ -13,10 +13,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.sunbird.common.exception.ProjectCommonException;
 import org.sunbird.common.models.util.LoggerEnum;
 import org.sunbird.common.models.util.ProjectLogger;
-import org.sunbird.common.models.util.PropertiesCache;
 import org.sunbird.common.models.util.RestUtil;
 import org.sunbird.common.responsecode.ResponseCode;
 import util.Constant;
+import util.Messaage;
+import util.TelemetryPropertiesCache;
 
 /**
  * Dispatcher responsible for storing Telemetry in Ekstep platform.
@@ -73,14 +74,15 @@ public class EkstepTelemetryDispatcher {
     } catch (Exception e) {
       throw new ProjectCommonException(
           Constant.TELEMETRY_DISPATCHER_ERROR,
-          Constant.TELEMETRY_PROCESSING_ERROR,
+          Messaage.TELEMETRY_PROCESSING_ERROR,
           ResponseCode.SERVER_ERROR.getResponseCode());
     }
   }
 
   private static String telemetryAPIURL() {
     String apiUrl = RestUtil.getBasePath();
-    apiUrl += PropertiesCache.getInstance().getProperty(Constant.EKSTEP_TELEMETRY_API_URL);
+    apiUrl +=
+        TelemetryPropertiesCache.getInstance().readProperty(Constant.EKSTEP_TELEMETRY_API_URL);
     return apiUrl;
   }
 }

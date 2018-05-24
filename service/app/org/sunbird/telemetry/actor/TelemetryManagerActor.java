@@ -15,6 +15,7 @@ import org.sunbird.common.models.util.ProjectLogger;
 import org.sunbird.common.request.Request;
 import org.sunbird.telemetry.dispatcher.EkstepTelemetryDispatcher;
 import util.Constant;
+import util.TelemetryPropertiesCache;
 
 /**
  * TelemetryManagerActor handles Telemetry requests.
@@ -49,10 +50,13 @@ public class TelemetryManagerActor extends BaseActor {
     return dispatcherRequest;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public void onReceive(Request request) throws Throwable {
     String operation = request.getOperation();
-    String ekstepStorageToggle = System.getenv(Constant.EKSTEP_TELEMETRY_STORAGE_TOGGLE);
+    String ekstepStorageToggle =
+        TelemetryPropertiesCache.getInstance()
+            .readProperty(Constant.EKSTEP_TELEMETRY_STORAGE_TOGGLE);
     if (Constant.DISPATCH_TELEMETRY_OPERATION_NAME.equals(operation)) {
       Object body = request.get(JsonKey.BODY);
       Map<String, String[]> headers = (Map<String, String[]>) request.get(Constant.HEADERS);
@@ -70,6 +74,7 @@ public class TelemetryManagerActor extends BaseActor {
       Response response = new Response();
       response.put(JsonKey.RESPONSE, JsonKey.SUCCESS);
       sender().tell(response, self());
+
       for (String name : dispatchers) {
         dispatch(name, request);
       }
@@ -79,7 +84,9 @@ public class TelemetryManagerActor extends BaseActor {
   }
 
   private void getDispatchers() {
-    String dispatchersStr = System.getenv(Constant.SUNBIRD_TELEMETRY_DISPATCH_ENV);
+    String dispatchersStr =
+        TelemetryPropertiesCache.getInstance()
+            .readProperty(Constant.SUNBIRD_TELEMETRY_DISPATCH_ENV);
     if (StringUtils.isNotBlank(dispatchersStr)) {
       for (String name : dispatchersStr.toLowerCase().split(",")) {
         if (!defaultDispacher.equals(name)) {

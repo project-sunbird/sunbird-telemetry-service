@@ -1,5 +1,6 @@
 package controllers;
 
+import com.google.common.net.HttpHeaders;
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.common.exception.ProjectCommonException;
 import org.sunbird.common.models.util.LoggerEnum;
@@ -27,8 +28,8 @@ public class TelemetryController extends BaseController {
    */
   public F.Promise<Result> save() {
     try {
-      String contentTypeHeader = request().getHeader(Constant.CONTENT_TYPE);
-      String encodingHeader = request().getHeader(Constant.ACCEPT_ENCODING);
+      String contentTypeHeader = request().getHeader(HttpHeaders.CONTENT_TYPE);
+      String encodingHeader = request().getHeader(HttpHeaders.ACCEPT_ENCODING);
       Request request = new Request();
       request.setOperation(Constant.DISPATCH_TELEMETRY_OPERATION_NAME);
       request.put(Constant.HEADERS, request().headers());

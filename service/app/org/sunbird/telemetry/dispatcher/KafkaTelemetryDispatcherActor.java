@@ -24,6 +24,8 @@ import org.sunbird.common.request.Request;
 import org.sunbird.common.responsecode.ResponseCode;
 import org.sunbird.kafka.client.KafkaClient;
 import util.Constant;
+import util.Messaage;
+import util.TelemetryPropertiesCache;
 
 /**
  * KafkaTelemetryDispatcherActor handles request to dispatch a telemetry message on Kafka.
@@ -36,9 +38,10 @@ import util.Constant;
 )
 public class KafkaTelemetryDispatcherActor extends BaseActor {
 
+  private static TelemetryPropertiesCache cache = TelemetryPropertiesCache.getInstance();
   private static String BOOTSTRAP_SERVERS =
-      System.getenv(Constant.SUNBIRD_TELEMETRY_KAFKA_SERVICE_CONFIG);
-  private static String topic = System.getenv(Constant.SUNBIRD_TELEMETRY_KAFKA_TOPIC);
+      cache.readProperty(Constant.SUNBIRD_TELEMETRY_KAFKA_SERVICE_CONFIG);
+  private static String topic = cache.readProperty(Constant.SUNBIRD_TELEMETRY_KAFKA_TOPIC);
   private ObjectMapper mapper = new ObjectMapper();
   private static Producer<Long, String> producer;
 
@@ -96,7 +99,7 @@ public class KafkaTelemetryDispatcherActor extends BaseActor {
     } else if (body instanceof byte[]) {
       events = getEvents((byte[]) body);
     } else {
-      emptyRequestError(Constant.INVALID_CONTENT_TYPE_MSG);
+      emptyRequestError(Messaage.INVALID_CONTENT_TYPE_MSG);
     }
 
     return events;
@@ -109,8 +112,9 @@ public class KafkaTelemetryDispatcherActor extends BaseActor {
         ResponseCode.CLIENT_ERROR.getResponseCode());
   }
 
+  @SuppressWarnings("unchecked")
   private List<String> getEvents(String body) throws Exception {
-    if (StringUtils.isBlank(body)) emptyRequestError(Constant.INVALID_REQ_BODY_MSG);
+    if (StringUtils.isBlank(body)) emptyRequestError(Messaage.INVALID_REQ_BODY_MSG);
 
     Request request = mapper.readValue(body, Request.class);
     List<String> events = new ArrayList<>();
@@ -125,8 +129,9 @@ public class KafkaTelemetryDispatcherActor extends BaseActor {
     return events;
   }
 
+  @SuppressWarnings("unchecked")
   private List<String> getEvents(byte[] body) {
-    if (null == body) emptyRequestError(Constant.INVALID_REQ_BODY_MSG);
+    if (null == body) emptyRequestError(Messaage.INVALID_REQ_BODY_MSG);
     try {
       List<String> events = new ArrayList<String>();
       InputStream is = new ByteArrayInputStream(body);
@@ -147,7 +152,7 @@ public class KafkaTelemetryDispatcherActor extends BaseActor {
       e.printStackTrace();
       throw new ProjectCommonException(
           ResponseCode.invalidRequestData.getErrorCode(),
-          Constant.INVALID_FILE_MSG,
+          Messaage.INVALID_FILE_MSG,
           ResponseCode.CLIENT_ERROR.getResponseCode());
     }
   }

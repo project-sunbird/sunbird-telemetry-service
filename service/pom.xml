@@ -180,6 +180,7 @@
 						<exclude>**/Reverse*/**</exclude>
 						<exclude>**/*.javascript/**</exclude>
 						<exclude>**/util/Constant.class</exclude>
+						<exclude>**/util/Message.class</exclude>
 						<exclude>**/util/Global.class</exclude>
 						<exclude>**/util/LoggingFilter.scala</exclude>
 					</excludes>
