@@ -13,6 +13,7 @@ import play.libs.F.Promise;
 import play.libs.Json;
 import play.mvc.Result;
 import util.Constant;
+import util.Message;
 
 /**
  * Telemetry controller handles Telemetry APIs.
@@ -47,7 +48,7 @@ public class TelemetryController extends BaseController {
       } else {
         throw new ProjectCommonException(
             ResponseCode.invalidRequestData.getErrorCode(),
-            Constant.INVALID_HEADER_MSG,
+            Message.INVALID_HEADER_MSG,
             ResponseCode.CLIENT_ERROR.getResponseCode());
       }
       return actorResponseHandler(getActorRef(), request, timeout, "", request());

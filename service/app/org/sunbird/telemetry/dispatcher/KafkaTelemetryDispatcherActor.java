@@ -24,7 +24,7 @@ import org.sunbird.common.request.Request;
 import org.sunbird.common.responsecode.ResponseCode;
 import org.sunbird.kafka.client.KafkaClient;
 import util.Constant;
-import util.Messaage;
+import util.Message;
 import util.TelemetryPropertiesCache;
 
 /**
@@ -99,7 +99,7 @@ public class KafkaTelemetryDispatcherActor extends BaseActor {
     } else if (body instanceof byte[]) {
       events = getEvents((byte[]) body);
     } else {
-      emptyRequestError(Messaage.INVALID_CONTENT_TYPE_MSG);
+      emptyRequestError(Message.INVALID_CONTENT_TYPE_MSG);
     }
 
     return events;
@@ -114,7 +114,7 @@ public class KafkaTelemetryDispatcherActor extends BaseActor {
 
   @SuppressWarnings("unchecked")
   private List<String> getEvents(String body) throws Exception {
-    if (StringUtils.isBlank(body)) emptyRequestError(Messaage.INVALID_REQ_BODY_MSG);
+    if (StringUtils.isBlank(body)) emptyRequestError(Message.INVALID_REQ_BODY_MSG);
 
     Request request = mapper.readValue(body, Request.class);
     List<String> events = new ArrayList<>();
@@ -131,7 +131,7 @@ public class KafkaTelemetryDispatcherActor extends BaseActor {
 
   @SuppressWarnings("unchecked")
   private List<String> getEvents(byte[] body) {
-    if (null == body) emptyRequestError(Messaage.INVALID_REQ_BODY_MSG);
+    if (null == body) emptyRequestError(Message.INVALID_REQ_BODY_MSG);
     try {
       List<String> events = new ArrayList<String>();
       InputStream is = new ByteArrayInputStream(body);
@@ -152,7 +152,7 @@ public class KafkaTelemetryDispatcherActor extends BaseActor {
       e.printStackTrace();
       throw new ProjectCommonException(
           ResponseCode.invalidRequestData.getErrorCode(),
-          Messaage.INVALID_FILE_MSG,
+          Message.INVALID_FILE_MSG,
           ResponseCode.CLIENT_ERROR.getResponseCode());
     }
   }

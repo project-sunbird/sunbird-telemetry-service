@@ -16,7 +16,6 @@ public class Constant {
   public static final String BODY = "body";
   public static final String GZIP = "gzip";
   public static final String APPLICATION_ZIP = "application/zip";
-  public static final String INVALID_HEADER_MSG = "Please provide valid headers.";
   public static final String DISPATCH_TELEMETRY_TO_KAFKA = "dispatchtelemetrytokafka";
 
   public static final String SUNBIRD_TELEMETRY_DISPATCH_ENV = "sunbird_telemetry_dispatchers";

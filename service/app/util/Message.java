@@ -5,7 +5,7 @@ package util;
  *
  * @author Manzarul
  */
-public class Messaage {
+public class Message {
 
   public static final String INVALID_FILE_MSG =
       "Please provide valid binary gzip file. File structure is invalid.";
@@ -14,4 +14,5 @@ public class Messaage {
   public static final String INVALID_CONTENT_TYPE_MSG = "Please provide valid content-type.";
   public static final String TELEMETRY_PROCESSING_ERROR =
       "Error in ekstep telemetry dispatcher. Please try again later.";
+  public static final String INVALID_HEADER_MSG = "Please provide valid headers.";
 }

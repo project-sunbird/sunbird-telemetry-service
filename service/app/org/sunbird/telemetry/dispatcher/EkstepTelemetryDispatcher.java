@@ -16,7 +16,7 @@ import org.sunbird.common.models.util.ProjectLogger;
 import org.sunbird.common.models.util.RestUtil;
 import org.sunbird.common.responsecode.ResponseCode;
 import util.Constant;
-import util.Messaage;
+import util.Message;
 import util.TelemetryPropertiesCache;
 
 /**
@@ -74,7 +74,7 @@ public class EkstepTelemetryDispatcher {
     } catch (Exception e) {
       throw new ProjectCommonException(
           Constant.TELEMETRY_DISPATCHER_ERROR,
-          Messaage.TELEMETRY_PROCESSING_ERROR,
+          Message.TELEMETRY_PROCESSING_ERROR,
           ResponseCode.SERVER_ERROR.getResponseCode());
     }
   }
