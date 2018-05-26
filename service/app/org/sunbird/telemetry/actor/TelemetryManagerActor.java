@@ -62,8 +62,7 @@ public class TelemetryManagerActor extends BaseActor {
       Map<String, String[]> headers = (Map<String, String[]>) request.get(Constant.HEADERS);
       // if ekstep_telemetry_storage_toggle is on then only send the telemetry value
       // to ekstep.
-      if (StringUtils.isNotBlank(ekstepStorageToggle)
-          && Constant.ON.equalsIgnoreCase(ekstepStorageToggle)) {
+      if (StringUtils.equalsIgnoreCase(Constant.ON, ekstepStorageToggle)) {
         if (body instanceof String) {
           EkstepTelemetryDispatcher.dispatch(headers, (String) body);
         } else if (body instanceof byte[]) {

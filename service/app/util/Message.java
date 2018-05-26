@@ -15,4 +15,5 @@ public class Message {
   public static final String TELEMETRY_PROCESSING_ERROR =
       "Error in ekstep telemetry dispatcher. Please try again later.";
   public static final String INVALID_HEADER_MSG = "Please provide valid headers.";
+  public static final String DEFAULT_MSG = "Please provide valid data.";
 }

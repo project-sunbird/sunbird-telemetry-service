@@ -11,6 +11,8 @@ import org.sunbird.controllers.BaseController;
 import play.libs.F;
 import play.libs.F.Promise;
 import play.libs.Json;
+import play.mvc.Http.RawBuffer;
+import play.mvc.Http.RequestBody;
 import play.mvc.Result;
 import util.Constant;
 import util.Message;
@@ -34,6 +36,11 @@ public class TelemetryController extends BaseController {
       Request request = new Request();
       request.setOperation(Constant.DISPATCH_TELEMETRY_OPERATION_NAME);
       request.put(Constant.HEADERS, request().headers());
+      RequestBody reqBody = request().body();
+      if (reqBody == null) {
+        // throwing invalid data exception with proper error msg.
+        throw createClientExcptionWithInvalidData(Message.INVALID_REQ_BODY_MSG);
+      }
       if (Constant.APPLICATION_JSON.equalsIgnoreCase(contentTypeHeader)) {
         ProjectLogger.log(
             "TelemetryController:save: Received telemetry in JSON format.", LoggerEnum.INFO.name());
@@ -43,13 +50,14 @@ public class TelemetryController extends BaseController {
           && StringUtils.containsIgnoreCase(encodingHeader, Constant.GZIP)) {
         ProjectLogger.log(
             "TelemetryController:save: Received telemetry in gzip format.", LoggerEnum.INFO.name());
-        byte[] body = request().body().asRaw().asBytes();
+        RawBuffer buffer = reqBody.asRaw();
+        if (buffer == null) {
+          throw createClientExcptionWithInvalidData(Message.INVALID_FILE_MSG);
+        }
+        byte[] body = buffer.asBytes();
         request.put(Constant.BODY, body);
       } else {
-        throw new ProjectCommonException(
-            ResponseCode.invalidRequestData.getErrorCode(),
-            Message.INVALID_HEADER_MSG,
-            ResponseCode.CLIENT_ERROR.getResponseCode());
+        throw createClientExcptionWithInvalidData(Message.INVALID_HEADER_MSG);
       }
       return actorResponseHandler(getActorRef(), request, timeout, "", request());
 
@@ -58,5 +66,15 @@ public class TelemetryController extends BaseController {
       return Promise.<Result>pure(
           createCommonExceptionResult(request().path(), e, request().method()));
     }
+  }
+
+  private ProjectCommonException createClientExcptionWithInvalidData(String message) {
+    if (StringUtils.isEmpty(message)) {
+      message = Message.DEFAULT_MSG;
+    }
+    return new ProjectCommonException(
+        ResponseCode.invalidRequestData.getErrorCode(),
+        message.trim(),
+        ResponseCode.CLIENT_ERROR.getResponseCode());
   }
 }
