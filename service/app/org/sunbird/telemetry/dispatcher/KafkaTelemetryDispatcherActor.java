@@ -46,19 +46,18 @@ public class KafkaTelemetryDispatcherActor extends BaseActor {
   private ObjectMapper mapper = new ObjectMapper();
   private static Producer<Long, String> producer;
 
-  static {
-    initKafkaClient();
-  }
-
   @Override
   public void onReceive(Request request) throws Throwable {
+    if (producer == null) {
+      initKafkaClient();
+    }
     String operation = request.getOperation();
     if (Constant.DISPATCH_TELEMETRY_TO_KAFKA.equals(operation)) {
       List<String> events = getEvents(request);
-      dispatchEvents(events);
       Response response = new Response();
       response.put(JsonKey.RESPONSE, JsonKey.SUCCESS);
       sender().tell(response, self());
+      dispatchEvents(events);
     } else {
       onReceiveUnsupportedMessage(operation);
     }
