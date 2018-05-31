@@ -17,6 +17,7 @@ import org.sunbird.common.request.Request;
 import org.sunbird.telemetry.dispatcher.EkstepTelemetryDispatcher;
 import org.sunbird.util.ConfigUtil;
 import util.Constant;
+import util.EnvConstant;
 
 /**
  * TelemetryManagerActor handles Telemetry requests.
@@ -24,7 +25,7 @@ import util.Constant;
  * @author Mahesh Kumar Gangula
  */
 @ActorConfig(
-  tasks = {"dispatchtelemetry"},
+  tasks = {Constant.DISPATCH_TELEMETRY_OPERATION_NAME},
   asyncTasks = {}
 )
 public class TelemetryManagerActor extends BaseActor {
@@ -56,7 +57,7 @@ public class TelemetryManagerActor extends BaseActor {
   @Override
   public void onReceive(Request request) throws Throwable {
     String operation = request.getOperation();
-    String ekstepStorageToggle = config.getString(Constant.EKSTEP_TELEMETRY_STORAGE_TOGGLE);
+    String ekstepStorageToggle = config.getString(EnvConstant.EKSTEP_TELEMETRY_STORAGE_TOGGLE);
     if (Constant.DISPATCH_TELEMETRY_OPERATION_NAME.equals(operation)) {
       Object body = request.get(JsonKey.BODY);
       Map<String, String[]> headers = (Map<String, String[]>) request.get(Constant.HEADERS);
@@ -84,7 +85,7 @@ public class TelemetryManagerActor extends BaseActor {
   }
 
   private void getDispatchers() {
-    String dispatchersStr = config.getString(Constant.SUNBIRD_TELEMETRY_DISPATCH_ENV);
+    String dispatchersStr = config.getString(EnvConstant.SUNBIRD_TELEMETRY_DISPATCH);
     if (StringUtils.isNotBlank(dispatchersStr)) {
       for (String name : dispatchersStr.toLowerCase().split(",")) {
         if (!defaultDispacher.equals(name)) {

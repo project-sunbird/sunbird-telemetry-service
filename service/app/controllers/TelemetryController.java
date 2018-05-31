@@ -16,6 +16,7 @@ import play.mvc.Http.RequestBody;
 import play.mvc.Result;
 import util.Constant;
 import util.Message;
+import util.TelemetryRequestValidator;
 
 /**
  * Telemetry controller handles Telemetry APIs.
@@ -39,12 +40,14 @@ public class TelemetryController extends BaseController {
       RequestBody reqBody = request().body();
       if (reqBody == null) {
         // throwing invalid data exception with proper error msg.
-        throw createClientExcptionWithInvalidData(Message.INVALID_REQ_BODY_MSG);
+        throw createClientExcptionWithInvalidData(Message.INVALID_REQ_BODY_MSG_ERROR);
       }
       if (Constant.APPLICATION_JSON.equalsIgnoreCase(contentTypeHeader)) {
         ProjectLogger.log(
             "TelemetryController:save: Received telemetry in JSON format.", LoggerEnum.INFO.name());
         request.put(Constant.BODY, Json.stringify(request().body().asJson()));
+        // doing validation for request body should not be empty, should have event array
+        TelemetryRequestValidator.validateTelemetryRequest(request, Constant.APPLICATION_JSON);
       } else if ((Constant.APPLICATION_OCTET.equalsIgnoreCase(contentTypeHeader)
               || Constant.APPLICATION_ZIP.equalsIgnoreCase(contentTypeHeader))
           && StringUtils.containsIgnoreCase(encodingHeader, Constant.GZIP)) {
@@ -52,12 +55,14 @@ public class TelemetryController extends BaseController {
             "TelemetryController:save: Received telemetry in gzip format.", LoggerEnum.INFO.name());
         RawBuffer buffer = reqBody.asRaw();
         if (buffer == null) {
-          throw createClientExcptionWithInvalidData(Message.INVALID_FILE_MSG);
+          throw createClientExcptionWithInvalidData(Message.INVALID_FILE_MSG_ERROR);
         }
         byte[] body = buffer.asBytes();
         request.put(Constant.BODY, body);
+        // doing validation for request body should not be empty, should have event array
+        TelemetryRequestValidator.validateTelemetryRequest(request, Constant.GZIP);
       } else {
-        throw createClientExcptionWithInvalidData(Message.INVALID_HEADER_MSG);
+        throw createClientExcptionWithInvalidData(Message.INVALID_HEADER_MSG_ERROR);
       }
       return actorResponseHandler(getActorRef(), request, timeout, "", request());
 
@@ -70,7 +75,7 @@ public class TelemetryController extends BaseController {
 
   private ProjectCommonException createClientExcptionWithInvalidData(String message) {
     if (StringUtils.isEmpty(message)) {
-      message = Message.DEFAULT_MSG;
+      message = Message.DEFAULT_MSG_ERROR;
     }
     return new ProjectCommonException(
         ResponseCode.invalidRequestData.getErrorCode(),

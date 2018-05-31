@@ -60,7 +60,7 @@ public class TelemetryControllerTest {
     Result result = Helpers.route(request);
     String response = Helpers.contentAsString(result);
     assertTrue(response.contains(ResponseCode.invalidRequestData.getErrorCode()));
-    assertTrue(response.contains(Message.INVALID_HEADER_MSG));
+    assertTrue(response.contains(Message.INVALID_HEADER_MSG_ERROR));
     assertEquals(400, result.status());
   }
 
@@ -96,7 +96,7 @@ public class TelemetryControllerTest {
   }
 
   @Test
-  public void testSendTelemetryUsingEmptyBody() {
+  public void testSendTelemetryWithOutEventsKey() {
     String body =
         "{\"request\":{\"id\":\"sunbird.telemetry\",\"ver\":\"3.0\",\"ets\":1521629184223}}";
     RequestBuilder request =
@@ -105,7 +105,19 @@ public class TelemetryControllerTest {
     headers.put(Constant.CONTENT_TYPE, new String[] {Constant.APPLICATION_JSON});
     request.headers(headers);
     Result result = Helpers.route(request);
-    assertEquals(200, result.status());
+    assertEquals(400, result.status());
+  }
+
+  @Test
+  public void testSendTelemetryWithEmptyBody() {
+    String body = "{}";
+    RequestBuilder request =
+        new RequestBuilder().bodyText(body).uri("/v1/telemetry").method(Helpers.POST);
+    Map<String, String[]> headers = new HashMap<String, String[]>();
+    headers.put(Constant.CONTENT_TYPE, new String[] {Constant.APPLICATION_JSON});
+    request.headers(headers);
+    Result result = Helpers.route(request);
+    assertEquals(400, result.status());
   }
 
   @Test
@@ -118,7 +130,23 @@ public class TelemetryControllerTest {
     headers.put(Constant.CONTENT_TYPE, new String[] {Constant.APPLICATION_JSON});
     request.headers(headers);
     Result result = Helpers.route(request);
-    assertEquals(200, result.status());
+    assertEquals(400, result.status());
+  }
+
+  @Test
+  public void testSendTelemetryWithOutGZip() throws Exception {
+    byte[] data = new byte[0];
+    Map<String, String[]> headers = new HashMap<String, String[]>();
+    headers.put(Constant.CONTENT_TYPE, new String[] {Constant.APPLICATION_ZIP});
+    headers.put(Constant.ACCEPT_ENCODING, new String[] {"gzip"});
+    RequestBuilder request =
+        new RequestBuilder()
+            .headers(headers)
+            .bodyRaw(data)
+            .uri("/v1/telemetry")
+            .method(Helpers.POST);
+    Result result = Helpers.route(request);
+    assertEquals(400, result.status());
   }
 
   /**

@@ -26,6 +26,7 @@ import org.sunbird.common.responsecode.ResponseCode;
 import org.sunbird.kafka.client.KafkaClient;
 import org.sunbird.util.ConfigUtil;
 import util.Constant;
+import util.EnvConstant;
 import util.Message;
 
 /**
@@ -41,8 +42,8 @@ public class KafkaTelemetryDispatcherActor extends BaseActor {
 
   private static Config config = ConfigUtil.getConfig();
   private static String BOOTSTRAP_SERVERS =
-      config.getString(Constant.SUNBIRD_TELEMETRY_KAFKA_SERVICE_CONFIG);
-  private static String topic = config.getString(Constant.SUNBIRD_TELEMETRY_KAFKA_TOPIC);
+      config.getString(EnvConstant.SUNBIRD_TELEMETRY_KAFKA_SERVICE_CONFIG);
+  private static String topic = config.getString(EnvConstant.SUNBIRD_TELEMETRY_KAFKA_TOPIC);
   private ObjectMapper mapper = new ObjectMapper();
   private static Producer<Long, String> producer;
 
@@ -99,7 +100,7 @@ public class KafkaTelemetryDispatcherActor extends BaseActor {
     } else if (body instanceof byte[]) {
       events = getEvents((byte[]) body);
     } else {
-      emptyRequestError(Message.INVALID_CONTENT_TYPE_MSG);
+      emptyRequestError(Message.INVALID_CONTENT_TYPE_MSG_ERROR);
     }
 
     return events;
@@ -114,7 +115,7 @@ public class KafkaTelemetryDispatcherActor extends BaseActor {
 
   @SuppressWarnings("unchecked")
   private List<String> getEvents(String body) throws Exception {
-    if (StringUtils.isBlank(body)) emptyRequestError(Message.INVALID_REQ_BODY_MSG);
+    if (StringUtils.isBlank(body)) emptyRequestError(Message.INVALID_REQ_BODY_MSG_ERROR);
 
     Request request = mapper.readValue(body, Request.class);
     List<String> events = new ArrayList<>();
@@ -131,7 +132,7 @@ public class KafkaTelemetryDispatcherActor extends BaseActor {
 
   @SuppressWarnings("unchecked")
   private List<String> getEvents(byte[] body) {
-    if (null == body) emptyRequestError(Message.INVALID_REQ_BODY_MSG);
+    if (null == body) emptyRequestError(Message.INVALID_REQ_BODY_MSG_ERROR);
     try {
       List<String> events = new ArrayList<String>();
       InputStream is = new ByteArrayInputStream(body);
@@ -152,7 +153,7 @@ public class KafkaTelemetryDispatcherActor extends BaseActor {
       e.printStackTrace();
       throw new ProjectCommonException(
           ResponseCode.invalidRequestData.getErrorCode(),
-          Message.INVALID_FILE_MSG,
+          Message.INVALID_FILE_MSG_ERROR,
           ResponseCode.CLIENT_ERROR.getResponseCode());
     }
   }
