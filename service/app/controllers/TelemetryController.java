@@ -46,6 +46,10 @@ public class TelemetryController extends BaseController {
         ProjectLogger.log(
             "TelemetryController:save: Received telemetry in JSON format.", LoggerEnum.INFO.name());
         request.put(Constant.BODY, Json.stringify(request().body().asJson()));
+        ProjectLogger.log(
+            "TelemetryController:save: Telemetry data = "
+                + Json.stringify(request().body().asJson()),
+            LoggerEnum.INFO.name());
         // doing validation for request body should not be empty, should have event array
         TelemetryRequestValidator.validateTelemetryRequest(request, Constant.APPLICATION_JSON);
       } else if ((Constant.APPLICATION_OCTET.equalsIgnoreCase(contentTypeHeader)
