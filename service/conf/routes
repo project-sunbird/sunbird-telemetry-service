@@ -1,0 +1,5 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# OPTIONS    /*all                  @controllers.TelemetryController.preflight(all)
+# ~~~~
+POST      /v1/telemetry	   @controllers.TelemetryController.save()
