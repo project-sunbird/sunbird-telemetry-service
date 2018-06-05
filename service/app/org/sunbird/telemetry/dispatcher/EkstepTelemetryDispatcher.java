@@ -1,5 +1,6 @@
 package org.sunbird.telemetry.dispatcher;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.net.HttpHeaders;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
@@ -7,10 +8,14 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.request.BaseRequest;
 import java.util.HashMap;
 import java.util.Map;
+import javax.ws.rs.core.MediaType;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sunbird.common.exception.ProjectCommonException;
 import org.sunbird.common.models.util.LoggerEnum;
 import org.sunbird.common.models.util.ProjectLogger;
 import org.sunbird.common.models.util.RestUtil;
+import org.sunbird.common.request.Request;
 import org.sunbird.common.responsecode.ResponseCode;
 import org.sunbird.util.ConfigUtil;
 import util.Constant;
@@ -26,8 +31,8 @@ public class EkstepTelemetryDispatcher {
       RestUtil.getBasePath() + ConfigUtil.getConfig().getString(Constant.EKSTEP_TELEMETRY_API_URL);
 
   public static boolean dispatch(Map<String, String[]> reqHeaders, String body) throws Exception {
-    Map<String, String> headers = getHeaders(Constant.APPLICATION_JSON);
-    BaseRequest request = Unirest.post(API_URL).headers(headers).body(body);
+    Map<String, String> headers = getHeaders(MediaType.APPLICATION_JSON);
+    BaseRequest request = Unirest.post(API_URL).headers(headers).body(getEvents(body));
     executeRequest(request);
     return true;
   }
@@ -68,5 +73,27 @@ public class EkstepTelemetryDispatcher {
           Message.TELEMETRY_PROCESSING_ERROR,
           ResponseCode.SERVER_ERROR.getResponseCode());
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static String getEvents(String body) throws Exception {
+    if (StringUtils.isNotBlank(body)) {
+      ObjectMapper mapper = new ObjectMapper();
+      Request request = mapper.readValue(body, Request.class);
+      if (request != null && MapUtils.isNotEmpty(request.getRequest())) {
+        Map<String, Object> map = (Map<String, Object>) request.getRequest();
+        if (map != null) {
+          return mapper.writeValueAsString(map);
+        }
+      }
+    }
+    throw emptyRequestError(Message.INVALID_REQ_BODY_MSG_ERROR);
+  }
+
+  private static ProjectCommonException emptyRequestError(String message) {
+    return new ProjectCommonException(
+        ResponseCode.invalidRequestData.getErrorCode(),
+        message,
+        ResponseCode.CLIENT_ERROR.getResponseCode());
   }
 }
