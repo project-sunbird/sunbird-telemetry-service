@@ -1,6 +1,6 @@
 ## Pre-requisites
 ## Configuration
-1. Environment Variabls
+1. Environment Variables
     1. ekstep_authorization : authorization header value
     2. ekstep_api_base_url : telemetry service base url "https://qa.ekstep.in/api"
 	3. ekstep_telemetry_storage_toggle : possible values are on or off . default value is on. on indicate data will sent to Ekstep.

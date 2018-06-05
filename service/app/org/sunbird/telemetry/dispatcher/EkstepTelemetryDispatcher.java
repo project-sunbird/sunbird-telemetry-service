@@ -29,7 +29,6 @@ import util.Message;
 public class EkstepTelemetryDispatcher {
   private static final String API_URL =
       RestUtil.getBasePath() + ConfigUtil.getConfig().getString(Constant.EKSTEP_TELEMETRY_API_URL);
-  private static ObjectMapper mapper = new ObjectMapper();
 
   public static boolean dispatch(Map<String, String[]> reqHeaders, String body) throws Exception {
     Map<String, String> headers = getHeaders(MediaType.APPLICATION_JSON);
@@ -78,27 +77,21 @@ public class EkstepTelemetryDispatcher {
 
   @SuppressWarnings("unchecked")
   private static String getEvents(String body) throws Exception {
-    if (StringUtils.isBlank(body)) emptyRequestError(Message.INVALID_REQ_BODY_MSG_ERROR);
-    Request request = mapper.readValue(body, Request.class);
-    if (request != null && MapUtils.isNotEmpty(request.getRequest())) {
-      Map<String, Object> map = (Map<String, Object>) request.getRequest();
-      if (map != null) {
-        return parseEvent(map);
+    if (StringUtils.isNotBlank(body)) {
+      ObjectMapper mapper = new ObjectMapper();
+      Request request = mapper.readValue(body, Request.class);
+      if (request != null && MapUtils.isNotEmpty(request.getRequest())) {
+        Map<String, Object> map = (Map<String, Object>) request.getRequest();
+        if (map != null) {
+          return mapper.writeValueAsString(map);
+        }
       }
     }
-    emptyRequestError(Message.INVALID_REQ_BODY_MSG_ERROR);
-    return null;
+    throw emptyRequestError(Message.INVALID_REQ_BODY_MSG_ERROR);
   }
 
-  private static String parseEvent(Map<String, Object> map) throws Exception {
-    if (null != map) {
-      return mapper.writeValueAsString(map);
-    }
-    return null;
-  }
-
-  private static void emptyRequestError(String message) throws ProjectCommonException {
-    throw new ProjectCommonException(
+  private static ProjectCommonException emptyRequestError(String message) {
+    return new ProjectCommonException(
         ResponseCode.invalidRequestData.getErrorCode(),
         message,
         ResponseCode.CLIENT_ERROR.getResponseCode());
