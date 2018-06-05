@@ -1,8 +1,8 @@
 ## Pre-requisites
 ## Configuration
 1. Environment Variabls
-    1. ekstep_telemetry_auth : authorization header value
-    2. ekstep_telemetry_api_base_url : telemetry service base url "https://qa.ekstep.in/api"
+    1. ekstep_authorization : authorization header value
+    2. ekstep_api_base_url : telemetry service base url "https://qa.ekstep.in/api"
 	3. ekstep_telemetry_storage_toggle : possible values are on or off . default value is on. on indicate data will sent to Ekstep.
 	4. sunbird_telemetry_dispatchers : possible value as comma separated String (Ex: kafka) currently only "kafka" value is supported
     5. sunbird_telemetry_kafka_servers_config : Comma-separated list of host and port pairs EX: localhost:9092,localhost:9093,localhost:9094
