@@ -85,6 +85,10 @@ public class TelemetryManagerActor extends BaseActor {
 
   private void getDispatchers() {
     String dispatchersStr = config.getString(EnvConstant.SUNBIRD_TELEMETRY_DISPATCH);
+    ProjectLogger.log(
+        "TelemetryManagerActor:getDispatchers: dispatchersStr = " + dispatchersStr,
+        LoggerEnum.INFO);
+
     if (StringUtils.isNotBlank(dispatchersStr)) {
       for (String name : dispatchersStr.toLowerCase().split(",")) {
         if (!defaultDispacher.equals(name)) {
@@ -93,7 +97,9 @@ public class TelemetryManagerActor extends BaseActor {
       }
     }
     ProjectLogger.log(
-        "TelemetryManagerActor:getDispatchers: Telemetry dispatcher names = ",
+        "TelemetryManagerActor:getDispatchers: Telemetry dispatcher size = "
+            + dispatchers.size()
+            + " names = ",
         dispatchers,
         LoggerEnum.INFO.name());
   }
