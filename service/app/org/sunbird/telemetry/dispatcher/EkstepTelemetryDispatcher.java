@@ -68,6 +68,10 @@ public class EkstepTelemetryDispatcher {
         throw new ProjectCommonException(err, message, ResponseCode.SERVER_ERROR.getResponseCode());
       }
     } catch (Exception e) {
+      ProjectLogger.log(
+          "EkstepTelemetryDispatcher:executeRequest: Generic exception in executeRequest = "
+              + e.getMessage(),
+          LoggerEnum.ERROR.name());
       throw new ProjectCommonException(
           Constant.TELEMETRY_DISPATCHER_ERROR,
           Message.TELEMETRY_PROCESSING_ERROR,
