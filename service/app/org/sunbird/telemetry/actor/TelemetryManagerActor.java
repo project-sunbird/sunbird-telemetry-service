@@ -14,7 +14,6 @@ import org.sunbird.common.models.util.JsonKey;
 import org.sunbird.common.models.util.LoggerEnum;
 import org.sunbird.common.models.util.ProjectLogger;
 import org.sunbird.common.request.Request;
-import org.sunbird.telemetry.dispatcher.EkstepTelemetryDispatcher;
 import org.sunbird.util.ConfigUtil;
 import util.Constant;
 import util.EnvConstant;
@@ -63,7 +62,7 @@ public class TelemetryManagerActor extends BaseActor {
       Map<String, String[]> headers = (Map<String, String[]>) request.get(Constant.HEADERS);
       // if ekstep_telemetry_storage_toggle is on then only send the telemetry value
       // to ekstep.
-      if (StringUtils.equalsIgnoreCase(Constant.ON, ekstepStorageToggle)) {
+      /*if (StringUtils.equalsIgnoreCase(Constant.ON, ekstepStorageToggle)) {
         if (body instanceof String) {
           EkstepTelemetryDispatcher.dispatch(headers, (String) body);
         } else if (body instanceof byte[]) {
@@ -71,14 +70,14 @@ public class TelemetryManagerActor extends BaseActor {
         } else {
           onReceiveUnsupportedMessage(operation);
         }
-      }
+      }*/
       Response response = new Response();
       response.put(JsonKey.RESPONSE, JsonKey.SUCCESS);
       sender().tell(response, self());
 
-      /*for (String name : dispatchers) {
+      for (String name : dispatchers) {
         dispatch(name, request);
-      }*/
+      }
     } else {
       onReceiveUnsupportedOperation(operation);
     }
