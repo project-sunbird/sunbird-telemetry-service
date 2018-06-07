@@ -54,7 +54,7 @@ public class KafkaTelemetryDispatcherActor extends BaseActor {
     }
     String operation = request.getOperation();
     if (Constant.DISPATCH_TELEMETRY_TO_KAFKA.equals(operation)) {
-      List<String> events = getEvents(request);
+      // List<String> events = getEvents(request);
       Response response = new Response();
       response.put(JsonKey.RESPONSE, JsonKey.SUCCESS);
       sender().tell(response, self());
