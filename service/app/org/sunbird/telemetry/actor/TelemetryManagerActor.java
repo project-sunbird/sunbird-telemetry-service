@@ -76,9 +76,9 @@ public class TelemetryManagerActor extends BaseActor {
       response.put(JsonKey.RESPONSE, JsonKey.SUCCESS);
       sender().tell(response, self());
 
-      for (String name : dispatchers) {
+      /*for (String name : dispatchers) {
         dispatch(name, request);
-      }
+      }*/
     } else {
       onReceiveUnsupportedOperation(operation);
     }
