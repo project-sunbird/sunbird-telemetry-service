@@ -57,7 +57,7 @@ public class KafkaTelemetryDispatcherActor extends BaseActor {
       // response.put(JsonKey.RESPONSE, JsonKey.SUCCESS);
       // sender().tell(response, self());
       List<String> events = getEvents(request);
-      // dispatchEvents(events);
+      dispatchEvents(events);
     } else {
       onReceiveUnsupportedMessage(operation);
     }
