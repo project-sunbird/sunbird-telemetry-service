@@ -42,7 +42,7 @@ public class TelemetryManagerActor extends BaseActor {
     Request request = getDispatcherRequest(baseRequest, dispatcher);
     ActorRef actor = (ActorRef) SunbirdMWService.getRequestRouter();
     if (null != actor) {
-      actor.tell(request, getSelf());
+      // actor.tell(request, getSelf());
     }
   }
 
@@ -76,9 +76,9 @@ public class TelemetryManagerActor extends BaseActor {
       response.put(JsonKey.RESPONSE, JsonKey.SUCCESS);
       sender().tell(response, self());
 
-      /*for (String name : dispatchers) {
+      for (String name : dispatchers) {
         dispatch(name, request);
-      }*/
+      }
     } else {
       onReceiveUnsupportedOperation(operation);
     }
