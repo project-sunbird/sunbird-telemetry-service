@@ -17,7 +17,6 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.sunbird.actor.core.BaseActor;
 import org.sunbird.actor.router.ActorConfig;
 import org.sunbird.common.exception.ProjectCommonException;
-import org.sunbird.common.models.response.Response;
 import org.sunbird.common.models.util.JsonKey;
 import org.sunbird.common.models.util.LoggerEnum;
 import org.sunbird.common.models.util.ProjectLogger;
@@ -54,11 +53,11 @@ public class KafkaTelemetryDispatcherActor extends BaseActor {
     }
     String operation = request.getOperation();
     if (Constant.DISPATCH_TELEMETRY_TO_KAFKA.equals(operation)) {
-      Response response = new Response();
-      response.put(JsonKey.RESPONSE, JsonKey.SUCCESS);
-      sender().tell(response, self());
-      List<String> events = getEvents(request);
-      dispatchEvents(events);
+      // Response response = new Response();
+      // response.put(JsonKey.RESPONSE, JsonKey.SUCCESS);
+      // sender().tell(response, self());
+      // List<String> events = getEvents(request);
+      // dispatchEvents(events);
     } else {
       onReceiveUnsupportedMessage(operation);
     }
