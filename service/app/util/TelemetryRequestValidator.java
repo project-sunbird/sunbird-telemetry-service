@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.sunbird.common.exception.ProjectCommonException;
 import org.sunbird.common.models.util.JsonKey;
+import org.sunbird.common.models.util.LoggerEnum;
 import org.sunbird.common.models.util.ProjectLogger;
 import org.sunbird.common.request.Request;
 import org.sunbird.common.responsecode.ResponseCode;
@@ -43,6 +44,9 @@ public class TelemetryRequestValidator {
   private static void validateGZReq(Request request) {
     byte requestedData[] = (byte[]) request.get(Constant.BODY);
     if (requestedData == null || requestedData.length == 0) {
+      ProjectLogger.log(
+          "TelemetryRequestValidator:validateGZReq requested data = " + request,
+          LoggerEnum.INFO.name());
       throw createProjectException(Message.INVALID_FILE_MSG_ERROR);
     }
   }
@@ -53,17 +57,27 @@ public class TelemetryRequestValidator {
     try {
       map = mapper.readValue(requestedData, new TypeReference<HashMap<String, Object>>() {});
     } catch (Exception e) {
-      ProjectLogger.log(e.getMessage(), e);
+      ProjectLogger.log(
+          "TelemetryRequestValidator:validateProperData json requested data : " + map,
+          LoggerEnum.INFO.name());
+      ProjectLogger.log(
+          "TelemetryRequestValidator:validateProperData Error message " + e.getMessage(), e);
     }
     if (map == null) {
       throw createProjectException("");
     }
     Map<String, Object> innerMap = (Map<String, Object>) map.get(JsonKey.REQUEST);
     if (innerMap == null || innerMap.size() == 0) {
+      ProjectLogger.log(
+          "TelemetryRequestValidator:validateProperData Request object missing : " + map,
+          LoggerEnum.INFO.name());
       throw createProjectException("");
     }
     List<Map<String, Object>> eventMap = (List<Map<String, Object>>) innerMap.get(JsonKey.EVENTS);
     if (eventMap == null || eventMap.size() == 0) {
+      ProjectLogger.log(
+          "TelemetryRequestValidator:validateProperData Events object missing : " + map,
+          LoggerEnum.INFO.name());
       throw createProjectException(Message.TELEMETRY_EVENT_MISSING_MSG_ERROR);
     }
     validateMaxSize(eventMap);
