@@ -58,7 +58,8 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
+			<!-- enable this plugin when we add test cases. -->
+			<!-- <plugin>
 				<groupId>org.scalatest</groupId>
 				<artifactId>scalatest-maven-plugin</artifactId>
 				<version>1.0</version>
@@ -71,7 +72,7 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin> -->
 			<plugin>
 				<groupId>org.scoverage</groupId>
 				<artifactId>scoverage-maven-plugin</artifactId>
