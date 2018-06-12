@@ -5,11 +5,12 @@ object Model {
 }
 
 
-case class Params(resmsgid: String, msgid: String, err: String, status: String, errmsg: String, client_key: Option[String] = None);
-case class RequestBody(id: String, ver: String, ts: String, request: Map[String, AnyRef], params: Option[Params]);
+case class Request(id: String, ver: String, ets: Long, events: Array[Map[String, AnyRef]]);
+case class APIRequest(request: Request);
 
-case class Request(apiId: String, body: Option[String] = None, params: Option[Map[String, AnyRef]] = None);
+case class Params(resmsgid: String, msgid: String, err: String, status: String, errmsg: String, client_key: Option[String] = None);
 case class Response(id: String, ver: String, ts: String, params: Params, responseCode: String, result: Option[Map[String, AnyRef]]);
+
 
 
 object ResponseCode extends Enumeration {

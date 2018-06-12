@@ -3,3 +3,4 @@
 # ~~~~
 
 GET	/health                                     @controllers.Application.checkAPIhealth
+POST /telemetry                                  @controllers.Application.telemetry
