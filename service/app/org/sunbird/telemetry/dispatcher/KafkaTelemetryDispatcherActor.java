@@ -126,6 +126,17 @@ public class KafkaTelemetryDispatcherActor extends BaseActor {
           events.add(mapper.writeValueAsString(obj));
         }
       }
+    } else {
+      // data is coming with out request wrapper
+      Map<String, Object> map = mapper.readValue(body, Map.class);
+      if (map != null) {
+        List<Object> objList = (List<Object>) map.get(JsonKey.EVENTS);
+        if (CollectionUtils.isNotEmpty(objList)) {
+          for (Object obj : objList) {
+            events.add(mapper.writeValueAsString(obj));
+          }
+        }
+      }
     }
     return events;
   }

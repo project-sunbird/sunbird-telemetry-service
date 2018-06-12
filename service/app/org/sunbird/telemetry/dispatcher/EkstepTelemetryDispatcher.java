@@ -89,6 +89,9 @@ public class EkstepTelemetryDispatcher {
         if (map != null) {
           return mapper.writeValueAsString(map);
         }
+      } else {
+        // Here data is coming without request body.
+        return body;
       }
     }
     throw emptyRequestError(Message.INVALID_REQ_BODY_MSG_ERROR);

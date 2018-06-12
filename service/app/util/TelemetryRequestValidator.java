@@ -66,21 +66,13 @@ public class TelemetryRequestValidator {
     if (map == null) {
       throw createProjectException("");
     }
-    Map<String, Object> innerMap = (Map<String, Object>) map.get(JsonKey.REQUEST);
-    if (innerMap == null || innerMap.size() == 0) {
+    boolean response = isDataHasRequestOrEvent(map);
+    if (!response) {
       ProjectLogger.log(
           "TelemetryRequestValidator:validateProperData Request object missing : " + map,
           LoggerEnum.INFO.name());
       throw createProjectException("");
     }
-    List<Map<String, Object>> eventMap = (List<Map<String, Object>>) innerMap.get(JsonKey.EVENTS);
-    if (eventMap == null || eventMap.size() == 0) {
-      ProjectLogger.log(
-          "TelemetryRequestValidator:validateProperData Events object missing : " + map,
-          LoggerEnum.INFO.name());
-      throw createProjectException(Message.TELEMETRY_EVENT_MISSING_MSG_ERROR);
-    }
-    validateMaxSize(eventMap);
   }
 
   private static void validateMaxSize(List<Map<String, Object>> eventList) {
@@ -98,5 +90,23 @@ public class TelemetryRequestValidator {
     }
     return new ProjectCommonException(
         ResponseCode.invalidRequestData.getErrorCode(), message, ERROR_CODE);
+  }
+
+  private static boolean isDataHasRequestOrEvent(Map<String, Object> requestMap) {
+    Map<String, Object> innerMap = (Map<String, Object>) requestMap.get(JsonKey.REQUEST);
+    if (innerMap == null || innerMap.size() == 0) {
+      return isMapContainsEvents(requestMap);
+    } else {
+      // if data is wrap with request then it should have events list as well
+      return isMapContainsEvents(innerMap);
+    }
+  }
+
+  private static boolean isMapContainsEvents(Map<String, Object> requestMap) {
+    List<Map<String, Object>> eventMap = (List<Map<String, Object>>) requestMap.get(JsonKey.EVENTS);
+    if (eventMap == null || eventMap.size() == 0) {
+      return false;
+    }
+    return true;
   }
 }
