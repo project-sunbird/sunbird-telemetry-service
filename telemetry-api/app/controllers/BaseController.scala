@@ -19,5 +19,6 @@ abstract class BaseController extends Controller {
     implicit val timeout: Timeout = 20 seconds;
     val envConf: Config = ConfigFactory.systemEnvironment();
 	  implicit val config: Config = envConf.withFallback(ConfigFactory.load());
+    val API_VERSION = "1.0"
 
 }

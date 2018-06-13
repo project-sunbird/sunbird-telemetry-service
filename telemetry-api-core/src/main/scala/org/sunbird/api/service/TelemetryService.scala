@@ -7,22 +7,25 @@ import akka.actor.actorRef2Scala
 import javax.inject._
 import play.api.Configuration
 import java.util.HashMap
+
 import org.apache.kafka.clients.producer.ProducerConfig
 import java.lang.Long
+
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.sunbird.api.JSONUtils
+import org.sunbird.api._
 import java.util.UUID
+
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.sunbird.api.ResponseCode._
-import org.sunbird.api.ResponseCode
-import org.sunbird.api.Response
-import org.sunbird.api.Params
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.apache.kafka.clients.producer.Callback
+
 import scala.concurrent.Promise
 import akka.dispatch.Futures
 import akka.pattern.Patterns
+
 import scala.concurrent.Future
 
 object TelemetryService {
@@ -58,9 +61,9 @@ class TelemetryService @Inject() (configuration: Configuration) extends Actor {
         producer.send(new ProducerRecord[String, String](topic, recordId, JSONUtils.serialize(event)), new Callback {
             override def onCompletion(metadata: RecordMetadata, exception: Exception): Unit = {
                 if (null != exception) {
-                    promise.success(Response("sunbird.telemetry", "1.0", "", Params("","","","",""), SERVER_ERROR.toString(), None));
+                    promise.success(Response(APIIds.TELEMETRY_API, "1.0", "", Params(recordId,"","",APIStatus.SUCCESSFUL,""), SERVER_ERROR.toString(), None));
                 } else {
-                    promise.success(Response("sunbird.telemetry", "1.0", "", Params("","","","",""), OK.toString(), None));
+                    promise.success(Response(APIIds.TELEMETRY_API, "1.0", "", Params(recordId,"","",APIStatus.SUCCESSFUL,""), OK.toString(), None));
                 }
             }
         });
