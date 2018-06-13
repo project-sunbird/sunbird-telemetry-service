@@ -17,6 +17,7 @@ import play.api.mvc.Controller
 abstract class BaseController extends Controller {
 
     implicit val timeout: Timeout = 20 seconds;
-	implicit val config: Config = play.Play.application.configuration.underlying();
+    val envConf: Config = ConfigFactory.systemEnvironment();
+	  implicit val config: Config = envConf.withFallback(ConfigFactory.load());
 
 }

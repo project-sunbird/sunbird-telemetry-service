@@ -24,14 +24,15 @@ object TelemetryService {
 
     case class TelemetryRequest(did: String, channel: String, appId: String, body: Array[Map[String, AnyRef]], config: Config)
     case class TelemetryParams(did: String, channel: String, appId: String, msgid: String);
-    case class TelemetryBatch(events: Array[Map[String, AnyRef]], params: TelemetryParams, id: Option[String] = Option("api.telemetry"), ver: Option[String] = Option("3.0"));
+    case class TelemetryBatch(events: Array[Map[String, AnyRef]], params: TelemetryParams, id: Option[String] = Option("api.telemetry"), ver: Option[String] = Option("3.0"), ets: Option[Long] = Option(System.currentTimeMillis()));
 }
 
 class TelemetryService @Inject() (configuration: Configuration) extends Actor {
     import TelemetryService._;
-
-    val bootstrapServers = configuration.getString("kafka.brokerList").get;
-    val topic = configuration.getString("kafka.topic").get;
+    
+    implicit val config = ConfigFactory.systemEnvironment().withFallback(configuration.underlying);    
+    val bootstrapServers = config.getString("sunbird_telemetry_kafka_servers_config");
+    val topic = config.getString("sunbird_telemetry_kafka_topic");
     Console.println("bootstrapServers", bootstrapServers, "topic", topic);
 
     val props = new HashMap[String, Object]()
