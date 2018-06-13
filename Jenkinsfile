@@ -17,9 +17,8 @@ node('build-slave') {
 
             env.NODE_ENV = "build"
             print "Environment will be : ${env.NODE_ENV}"
-            sh('git submodule foreach git pull origin release-1.7')
             sh 'mvn clean install -DskipTests'
-            dir('service') {
+            dir('telemetry-api') {
                 sh 'mvn play2:dist'
             }
             sh('chmod 777 ./build.sh')

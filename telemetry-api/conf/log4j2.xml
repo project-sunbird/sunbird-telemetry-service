@@ -1,37 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="WARN" packages="">
-	<Properties>
-		<Property name="baseDir">logs</Property>
-		<!-- <Property name="baseDir">/mnt/data/analytics/logs</Property> --> <!-- Production Config -->
-	</Properties>
+<Configuration status="WARN">
 	<Appenders>
 		<Console name="Console" target="SYSTEM_OUT">
-			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+			<PatternLayout pattern="%d [%t] %-5level %logger{36} - %msg%n" />
 		</Console>
-		<RollingFile name="RollingFileAppender" fileName="${baseDir}/joblog.log" filePattern="${baseDir}/joblog-%d{MM-dd-yyyy}-%i.log">
+		<RollingFile name="DefaultLogAppender" fileName="logs/telemetry_service_mw.log"
+			filePattern="logs/telemetry_service_mw-%d{MM-dd-yyyy}-%i.log.gz">
 			<PatternLayout>
-				<Pattern>%m%n</Pattern>
+				<Pattern>%msg%n</Pattern>
 			</PatternLayout>
 			<Policies>
-				<TimeBasedTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="50 MB" />
 			</Policies>
 			<DefaultRolloverStrategy>
-                <Delete basePath="${baseDir}/" maxDepth="1" testMode="false">
-                    <IfFileName glob="joblog-*.log" />
-                    <IfLastModified age="7d" />
+                <Delete basePath="logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="telemetry_service_mw-*.log" />
+                    <IfLastModified age="1d" />
                 </Delete>
             </DefaultRolloverStrategy>
 		</RollingFile>
-		<Async name="Async">
-			<AppenderRef ref="RollingFileAppender" />
-		</Async>
+		<RollingFile name="PerfLogAppender" fileName="logs/telemetry_service_perf.log"
+					 filePattern="/data/logs/telemetry_service_perf-%d{MM-dd-yyyy-hh}-%i.log">
+			<PatternLayout>
+				<Pattern>%msg%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="50 MB" />
+				<TimeBasedTriggeringPolicy interval="24" modulate="true" />
+				<OnStartupTriggeringPolicy />
+			</Policies>
+			<DefaultRolloverStrategy>
+				<Delete basePath="logs/" maxDepth="1" testMode="false">
+					<IfFileName glob="telemetry_service_perf-*.log" />
+					<IfLastModified age="1d" />
+				</Delete>
+			</DefaultRolloverStrategy>
+		</RollingFile>
 	</Appenders>
 	<Loggers>
-		<Logger name="org.ekstep.analytics.api" level="info" additivity="false">
-			<AppenderRef ref="Async"/>
+		<Logger name="defaultLogger" level="ERROR" additivity="false">
+			<AppenderRef ref="DefaultLogAppender" />
 		</Logger>
-		<Root level="error">
-			<AppenderRef ref="Console" />
-		</Root>
+		<Logger name="PerformanceTestLogger" level="INFO" additivity="false">
+				<AppenderRef ref="PerfLogAppender" />
+		</Logger>
 	</Loggers>
 </Configuration>
