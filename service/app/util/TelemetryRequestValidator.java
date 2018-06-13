@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sunbird.common.exception.ProjectCommonException;
 import org.sunbird.common.models.util.JsonKey;
@@ -31,17 +33,17 @@ public class TelemetryRequestValidator {
    */
   public static void validateTelemetryRequest(Request request, String reqType) {
     if (Constant.GZIP.equalsIgnoreCase(reqType)) {
-      validateGZReq(request);
+      validateGZipRequest(request);
     } else {
-      validateJsonReq(request);
+      validateJsonRequest(request);
     }
   }
 
-  private static void validateJsonReq(Request request) {
-    validateProperData(request);
+  private static void validateJsonRequest(Request request) {
+    validateRequestFormat(request);
   }
 
-  private static void validateGZReq(Request request) {
+  private static void validateGZipRequest(Request request) {
     byte requestedData[] = (byte[]) request.get(Constant.BODY);
     if (requestedData == null || requestedData.length == 0) {
       ProjectLogger.log(
@@ -51,7 +53,7 @@ public class TelemetryRequestValidator {
     }
   }
 
-  private static void validateProperData(Request request) {
+  private static void validateRequestFormat(Request request) {
     String requestedData = (String) request.get(Constant.BODY);
     Map<String, Object> map = null;
     try {
@@ -66,10 +68,10 @@ public class TelemetryRequestValidator {
     if (map == null) {
       throw createProjectException("");
     }
-    boolean response = isDataHasRequestOrEvent(map);
+    boolean response = isEventsPresent(map);
     if (!response) {
       ProjectLogger.log(
-          "TelemetryRequestValidator:validateProperData Request object missing : " + map,
+          "TelemetryRequestValidator:validateProperData Request or Events key is missing : " + map,
           LoggerEnum.INFO.name());
       throw createProjectException("");
     }
@@ -92,19 +94,29 @@ public class TelemetryRequestValidator {
         ResponseCode.invalidRequestData.getErrorCode(), message, ERROR_CODE);
   }
 
-  private static boolean isDataHasRequestOrEvent(Map<String, Object> requestMap) {
+  /**
+   * This method will do the check for telemetry request structure.Request can come in two format
+   * format 1: {"params":{},"events":[{},{}]} format 2: {"request":{"params":{},"events":[{},{}]}}
+   *
+   * @param requestMap complete telemetry requested data
+   * @return if request data contains either direct or indirect events list then it will return true
+   *     otherwise false.
+   */
+  private static boolean isEventsPresent(Map<String, Object> requestMap) {
     Map<String, Object> innerMap = (Map<String, Object>) requestMap.get(JsonKey.REQUEST);
-    if (innerMap == null || innerMap.size() == 0) {
+    if (MapUtils.isEmpty(innerMap)) {
+      // here data is not wrap with request EX: {"events":[{},{}],..}
       return isMapContainsEvents(requestMap);
     } else {
       // if data is wrap with request then it should have events list as well
+      // EX: {"request":{"events":[{},{}]}}
       return isMapContainsEvents(innerMap);
     }
   }
 
   private static boolean isMapContainsEvents(Map<String, Object> requestMap) {
     List<Map<String, Object>> eventMap = (List<Map<String, Object>>) requestMap.get(JsonKey.EVENTS);
-    if (eventMap == null || eventMap.size() == 0) {
+    if (CollectionUtils.isEmpty(eventMap)) {
       return false;
     }
     return true;

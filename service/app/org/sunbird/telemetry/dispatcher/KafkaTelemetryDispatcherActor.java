@@ -117,24 +117,19 @@ public class KafkaTelemetryDispatcherActor extends BaseActor {
   private List<String> getEvents(String body) throws Exception {
     if (StringUtils.isBlank(body)) emptyRequestError(Message.INVALID_REQ_BODY_MSG_ERROR);
 
-    Request request = mapper.readValue(body, Request.class);
+    Map<String, Object> map = mapper.readValue(body, Map.class);
     List<String> events = new ArrayList<>();
-    if (request != null && MapUtils.isNotEmpty(request.getRequest())) {
-      List<Object> objList = (List<Object>) request.getRequest().get(JsonKey.EVENTS);
-      if (CollectionUtils.isNotEmpty(objList)) {
-        for (Object obj : objList) {
-          events.add(mapper.writeValueAsString(obj));
-        }
+    List<Object> eventList = null;
+    if (MapUtils.isNotEmpty(map)) {
+      Map<String, Object> requestMap = (Map<String, Object>) map.get(JsonKey.REQUEST);
+      if (MapUtils.isNotEmpty(requestMap)) {
+        eventList = (List<Object>) requestMap.get(JsonKey.EVENTS);
+      } else {
+        eventList = (List<Object>) map.get(JsonKey.EVENTS);
       }
-    } else {
-      // data is coming with out request wrapper
-      Map<String, Object> map = mapper.readValue(body, Map.class);
-      if (map != null) {
-        List<Object> objList = (List<Object>) map.get(JsonKey.EVENTS);
-        if (CollectionUtils.isNotEmpty(objList)) {
-          for (Object obj : objList) {
-            events.add(mapper.writeValueAsString(obj));
-          }
+      if (CollectionUtils.isNotEmpty(eventList)) {
+        for (Object obj : eventList) {
+          events.add(mapper.writeValueAsString(obj));
         }
       }
     }
