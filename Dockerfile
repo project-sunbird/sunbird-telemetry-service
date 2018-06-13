@@ -6,7 +6,7 @@ RUN apk update \
     && adduser -u 1001 -h /home/sunbird/ -D sunbird \
     && mkdir -p /home/sunbird/telemetry
 
-COPY ./telemetry-api/target/telemetry-service-1.0-SNAPSHOT-dist.zip /home/sunbird/telemetry/
+COPY ./telemetry-servce/target/telemetry-service-1.0-SNAPSHOT-dist.zip /home/sunbird/telemetry/
 RUN unzip /home/sunbird/telemetry/telemetry-service-1.0-SNAPSHOT-dist.zip -d /home/sunbird/telemetry/
 RUN chown -R sunbird:sunbird /home/sunbird
 USER sunbird
