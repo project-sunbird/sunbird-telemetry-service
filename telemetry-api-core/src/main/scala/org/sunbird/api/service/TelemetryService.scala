@@ -13,12 +13,17 @@ import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.sunbird.api.JSONUtils
 import java.util.UUID
-import java.util.concurrent.Future
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.sunbird.api.ResponseCode._
 import org.sunbird.api.ResponseCode
 import org.sunbird.api.Response
 import org.sunbird.api.Params
+import scala.concurrent.ExecutionContext.Implicits.global
+import org.apache.kafka.clients.producer.Callback
+import scala.concurrent.Promise
+import akka.dispatch.Futures
+import akka.pattern.Patterns
+import scala.concurrent.Future
 
 object TelemetryService {
 
@@ -40,25 +45,28 @@ class TelemetryService @Inject() (configuration: Configuration) extends Actor {
     props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer")
     props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer")
     props.put(ProducerConfig.ACKS_CONFIG, "all")
-    props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "gzip")
+    //props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "gzip")
 
     lazy val producer = new KafkaProducer[String, String](props);
 
-    def receiveTelemetry(did: String, channel: String, appId: String, events: Array[Map[String, AnyRef]])(implicit config: Config): Response = {
+    def receiveTelemetry(did: String, channel: String, appId: String, events: Array[Map[String, AnyRef]])(implicit config: Config) = {
         val recordId = UUID.randomUUID().toString();
         val event = TelemetryBatch(events, TelemetryParams(did, channel, appId, recordId))
-        try {
-            producer.send(new ProducerRecord[String, String](topic, recordId, JSONUtils.serialize(event))).get
-            Response("sunbird.telemetry", "1.0", "", Params("","","","",""), OK.toString(), None);
-        } catch {
-            case ex: Exception =>
-                ex.printStackTrace();
-                Response("sunbird.telemetry", "1.0", "", Params("","","","",""), SERVER_ERROR.toString(), None);
-        }
-
+        val promise: Promise[Response] = Futures.promise();
+        
+        producer.send(new ProducerRecord[String, String](topic, recordId, JSONUtils.serialize(event)), new Callback {
+            override def onCompletion(metadata: RecordMetadata, exception: Exception): Unit = {
+                if (null != exception) {
+                    promise.success(Response("sunbird.telemetry", "1.0", "", Params("","","","",""), SERVER_ERROR.toString(), None));
+                } else {
+                    promise.success(Response("sunbird.telemetry", "1.0", "", Params("","","","",""), OK.toString(), None));
+                }
+            }
+        });
+        Patterns.pipe(promise.future, this.context.dispatcher).to(sender())
     }
 
     def receive = {
-        case TelemetryRequest(did: String, channel: String, appId: String, events: Array[Map[String, AnyRef]], config: Config) => sender() ! receiveTelemetry(did, channel, appId, events)(config);
+        case TelemetryRequest(did: String, channel: String, appId: String, events: Array[Map[String, AnyRef]], config: Config) => receiveTelemetry(did, channel, appId, events)(config);
     }
 }
