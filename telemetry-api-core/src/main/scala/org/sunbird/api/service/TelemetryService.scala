@@ -30,6 +30,7 @@ import scala.concurrent.Future
 
 object TelemetryService {
 
+    case class TelemetryRequestPassthrough(request: String, config: Config);
     case class TelemetryRequest(did: String, channel: String, appId: String, body: Array[Map[String, AnyRef]], config: Config)
     case class TelemetryParams(did: String, channel: String, appId: String, msgid: String);
     case class TelemetryBatch(events: Array[Map[String, AnyRef]], params: TelemetryParams, id: Option[String] = Option("api.telemetry"), ver: Option[String] = Option("3.0"), ets: Option[Long] = Option(System.currentTimeMillis()));
@@ -69,8 +70,25 @@ class TelemetryService @Inject() (configuration: Configuration) extends Actor {
         });
         Patterns.pipe(promise.future, this.context.dispatcher).to(sender())
     }
+    
+    def receiveTelemetryAsString(request: String)(implicit config: Config) = {
+        val recordId = UUID.randomUUID().toString();
+        val promise: Promise[Response] = Futures.promise();
+        
+        producer.send(new ProducerRecord[String, String](topic, recordId, request), new Callback {
+            override def onCompletion(metadata: RecordMetadata, exception: Exception): Unit = {
+                if (null != exception) {
+                    promise.success(Response(APIIds.TELEMETRY_API, "1.0", "", Params(recordId,"","",APIStatus.SUCCESSFUL,""), SERVER_ERROR.toString(), None));
+                } else {
+                    promise.success(Response(APIIds.TELEMETRY_API, "1.0", "", Params(recordId,"","",APIStatus.SUCCESSFUL,""), OK.toString(), None));
+                }
+            }
+        });
+        Patterns.pipe(promise.future, this.context.dispatcher).to(sender())
+    }
 
     def receive = {
         case TelemetryRequest(did: String, channel: String, appId: String, events: Array[Map[String, AnyRef]], config: Config) => receiveTelemetry(did, channel, appId, events)(config);
+        case TelemetryRequestPassthrough(request: String, config: Config) => receiveTelemetryAsString(request)(config);
     }
 }

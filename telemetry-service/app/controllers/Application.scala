@@ -31,19 +31,27 @@ class Application @Inject() (@Named("telemetry-actor") telemetryServiceActor: Ac
         val appId = request.headers.get("X-App-Id").getOrElse("")
         val did = request.headers.get("X-Device-Id").getOrElse("")
 	    val bodyStr: String = Json.stringify(request.body.asJson.get);
+	    /*
         val body = JSONUtils.deserialize[Request](bodyStr);
 		val events = body.events;
-			if (events.isEmpty || events.getOrElse(Array()).length == 0) {
-				val response = Response(APIIds.TELEMETRY_API, API_VERSION, "", Params("","",CLIENT_ERROR.toString, APIStatus.FAILED ,"Please include events in the request."), CLIENT_ERROR.toString(), None);
-				Futures.successful(play.api.mvc.Results.BadRequest(JSONUtils.serialize(response)).withHeaders(CONTENT_TYPE -> "application/json"));
-			} else {
-				val result = ask(telemetryServiceActor, TelemetryRequest(did, channel, appId, body.events.get, config)).mapTo[Response];
-				result.map( { x =>
-					x.responseCode match {
-						case "OK" => Ok(JSONUtils.serialize(x)).withHeaders(CONTENT_TYPE -> "application/json")
-						case "SERVER_ERROR" => InternalServerError(JSONUtils.serialize(x)).withHeaders(CONTENT_TYPE -> "application/json")
-					}
-				});
+		if (events.isEmpty || events.getOrElse(Array()).length == 0) {
+			val response = Response(APIIds.TELEMETRY_API, API_VERSION, "", Params("","",CLIENT_ERROR.toString, APIStatus.FAILED ,"Please include events in the request."), CLIENT_ERROR.toString(), None);
+			Futures.successful(play.api.mvc.Results.BadRequest(JSONUtils.serialize(response)).withHeaders(CONTENT_TYPE -> "application/json"));
+		} else {
+			val result = ask(telemetryServiceActor, TelemetryRequest(did, channel, appId, body.events.get, config)).mapTo[Response];
+			result.map( { x =>
+				x.responseCode match {
+					case "OK" => Ok(JSONUtils.serialize(x)).withHeaders(CONTENT_TYPE -> "application/json")
+					case "SERVER_ERROR" => InternalServerError(JSONUtils.serialize(x)).withHeaders(CONTENT_TYPE -> "application/json")
+				}
+			});
+		}*/
+	    val result = ask(telemetryServiceActor, TelemetryRequestPassthrough(bodyStr, config)).mapTo[Response];
+		result.map( { x =>
+			x.responseCode match {
+				case "OK" => Ok(JSONUtils.serialize(x)).withHeaders(CONTENT_TYPE -> "application/json")
+				case "SERVER_ERROR" => InternalServerError(JSONUtils.serialize(x)).withHeaders(CONTENT_TYPE -> "application/json")
 			}
+		});
 	}
 }
