@@ -47,7 +47,7 @@ public class TelemetryRequestValidator {
     byte requestedData[] = (byte[]) request.get(Constant.BODY);
     if (requestedData == null || requestedData.length == 0) {
       ProjectLogger.log(
-          "TelemetryRequestValidator:validateGZReq requested data = " + request,
+          "TelemetryRequestValidator:validateGZipRequest: Requested data = " + request,
           LoggerEnum.INFO.name());
       throw createProjectException(Message.INVALID_FILE_MSG_ERROR);
     }
@@ -60,10 +60,10 @@ public class TelemetryRequestValidator {
       map = mapper.readValue(requestedData, new TypeReference<HashMap<String, Object>>() {});
     } catch (Exception e) {
       ProjectLogger.log(
-          "TelemetryRequestValidator:validateProperData json requested data : " + map,
+          "TelemetryRequestValidator:validateRequestFormat: Json requested data : " + map,
           LoggerEnum.INFO.name());
       ProjectLogger.log(
-          "TelemetryRequestValidator:validateProperData Error message " + e.getMessage(), e);
+          "TelemetryRequestValidator:validateRequestFormat: Error message : " + e.getMessage(), e);
     }
     if (map == null) {
       throw createProjectException("");
@@ -71,7 +71,8 @@ public class TelemetryRequestValidator {
     boolean response = isEventsPresent(map);
     if (!response) {
       ProjectLogger.log(
-          "TelemetryRequestValidator:validateProperData Request or Events key is missing : " + map,
+          "TelemetryRequestValidator:validateRequestFormat: Request or Events key is missing : "
+              + map,
           LoggerEnum.INFO.name());
       throw createProjectException("");
     }
@@ -95,27 +96,18 @@ public class TelemetryRequestValidator {
   }
 
   /**
-   * This method will do the check for telemetry request structure.Request can come in two format
-   * format 1: {"params":{},"events":[{},{}]} format 2: {"request":{"params":{},"events":[{},{}]}}
+   * This method checks telemetry request structure. Request can come in two formats: Format 1:
+   * {"events":[...]}, Format 2: {"request":{"events":[...]}}
    *
-   * @param requestMap complete telemetry requested data
-   * @return if request data contains either direct or indirect events list then it will return true
-   *     otherwise false.
+   * @param requestMap Telemetry request
+   * @return True, if events is present in one of the mentioned formats. Otherwise, return false.
    */
   private static boolean isEventsPresent(Map<String, Object> requestMap) {
-    Map<String, Object> innerMap = (Map<String, Object>) requestMap.get(JsonKey.REQUEST);
-    if (MapUtils.isEmpty(innerMap)) {
-      // here data is not wrap with request EX: {"events":[{},{}],..}
-      return isMapContainsEvents(requestMap);
-    } else {
-      // if data is wrap with request then it should have events list as well
-      // EX: {"request":{"events":[{},{}]}}
-      return isMapContainsEvents(innerMap);
+    Map<String, Object> eventsMap = (Map<String, Object>) requestMap.get(JsonKey.REQUEST);
+    if (MapUtils.isEmpty(eventsMap)) {
+      eventsMap = requestMap;
     }
-  }
-
-  private static boolean isMapContainsEvents(Map<String, Object> requestMap) {
-    List<Map<String, Object>> eventMap = (List<Map<String, Object>>) requestMap.get(JsonKey.EVENTS);
+    List<Map<String, Object>> eventMap = (List<Map<String, Object>>) eventsMap.get(JsonKey.EVENTS);
     if (CollectionUtils.isEmpty(eventMap)) {
       return false;
     }

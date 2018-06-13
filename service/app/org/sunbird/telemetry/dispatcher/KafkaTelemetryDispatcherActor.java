@@ -128,8 +128,8 @@ public class KafkaTelemetryDispatcherActor extends BaseActor {
         eventList = (List<Object>) map.get(JsonKey.EVENTS);
       }
       if (CollectionUtils.isNotEmpty(eventList)) {
-        for (Object obj : eventList) {
-          events.add(mapper.writeValueAsString(obj));
+        for (Object event : eventList) {
+          events.add(mapper.writeValueAsString(event));
         }
       }
     }
