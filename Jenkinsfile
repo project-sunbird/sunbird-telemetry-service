@@ -18,7 +18,7 @@ node('build-slave') {
             env.NODE_ENV = "build"
             print "Environment will be : ${env.NODE_ENV}"
             sh 'mvn clean install -DskipTests'
-            dir('telemetry-api') {
+            dir('telemetry-service') {
                 sh 'mvn play2:dist'
             }
             sh('chmod 777 ./build.sh')

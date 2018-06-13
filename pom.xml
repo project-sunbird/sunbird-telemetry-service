@@ -7,7 +7,7 @@
   <name>Sunbird Telemetry Service</name>
   <modules>
     <module>telemetry-api-core</module>
-    <module>telemetry-api</module>
+    <module>telemetry-service</module>
   </modules>
   <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -57,6 +57,5 @@
         </configuration>
       </plugin>
     </plugins>
-    <finalName>telemetry-service-${project.version}</finalName>
   </build>
 </project>
