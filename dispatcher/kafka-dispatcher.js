@@ -1,6 +1,5 @@
 var util = require('util');
 var winston = require('winston');
-var uuidv1 = require('uuid/v1');
 var kafka = require('kafka-node')
 var HighLevelProducer = kafka.HighLevelProducer;
 var KeyedMessage = kafka.KeyedMessage;
@@ -30,9 +29,7 @@ util.inherits(KafkaDispatcher, winston.Transport);
 winston.transports.Kafka = KafkaDispatcher;
 
 KafkaDispatcher.prototype.log = function (level, msg, meta, callback) {
-    const key = {did: meta.did, channel: meta.channel, appId: meta.appId, msgId: uuidv1(), encType: meta.encodingType, contentType: meta.contentType, syncts: new Date().getTime()};
-    let km = new KeyedMessage(JSON.stringify(key), JSON.stringify(msg));
-    this.producer.send([{topic: this.options.topic, messages: km}], callback);
+    this.producer.send([{topic: this.options.topic, key: meta.mid, messages: msg, attributes: 1}], callback);
 }
 
 module.exports.KafkaDispatcher = KafkaDispatcher;
