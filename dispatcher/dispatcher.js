@@ -4,7 +4,7 @@ require('winston-daily-rotate-file');
 const defaultFileOptions = {
     filename: 'dispatcher-%DATE%.log',
     datePattern: 'YYYY-MM-DD',
-    maxsize: '100m',
+    maxSize: '100m',
     maxFiles: '100',
     zippedArchive: true,
     json: true

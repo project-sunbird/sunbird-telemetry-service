@@ -6,13 +6,15 @@ const proxyTelemetryData = process.env.telemetry_proxy_pass_through;
 
 // TODO: Make this efficient. Implementation to be similar to typesafe config
 const config = {
+    level: 'info',
     dispatcher: process.env.telemetry_local_storage_type,
     proxyURL: process.env.telemetry_proxy_pass_through_url,
     encodingType: process.env.telemetry_encoding_type,
     kafkaHost: process.env.telemetry_kafka_broker_list,
     topic: process.env.telemetry_kafka_topic,
-    fileName: 'telemetry-%DATE%.log',
-    level: 'info',
+    filename: process.env.telemetry_file_filename || 'telemetry-%DATE%.log',
+    maxSize: process.env.telemetry_file_maxsize || '100m',
+    maxFiles: process.env.telemetry_file_maxfiles || '100',
     partitionBy: process.env.telemetry_cassandra_partition_by || 'hour',
     keyspace: process.env.telemetry_cassandra_keyspace,
     contactPoints: (process.env.telemetry_cassandra_contactpoints || 'localhost').split(',')
