@@ -12,7 +12,7 @@ var defaultOptions = {
 function KafkaDispatcher(options) {
     this.options = Object.assign(defaultOptions, options);
     var client = new kafka.KafkaClient({
-        kafkaHost: this.options.telemetry_kafka_broker_list,
+        kafkaHost: this.options.kafkaHost,
         maxAsyncRequests: this.options.maxAsyncRequests
     })
     this.producer = new HighLevelProducer(client);
@@ -29,7 +29,7 @@ util.inherits(KafkaDispatcher, winston.Transport);
 winston.transports.Kafka = KafkaDispatcher;
 
 KafkaDispatcher.prototype.log = function (level, msg, meta, callback) {
-    this.producer.send([{topic: this.options.topic, key: meta.mid, messages: msg, attributes: 1}], callback);
+    this.producer.send([{topic: this.options.topic, key: meta.mid, messages: msg}], callback);
 }
 
 module.exports.KafkaDispatcher = KafkaDispatcher;
