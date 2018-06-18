@@ -3,8 +3,7 @@
   "version": "1.7.0",
   "main": "app.js",
   "author": "sunbird",
-  "scripts": {
-  },
+  "scripts": {},
   "dependencies": {
     "body-parser": "~1.18.3",
     "cookie-parser": "~1.4.3",
