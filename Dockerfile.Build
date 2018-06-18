@@ -7,4 +7,4 @@ ADD src /opt/telemetry/
 WORKDIR /opt/telemetry/
 RUN npm install
 WORKDIR /opt
-CMD ["zip", "-r", "telemetry-service.zip", "telemetry"]
+CMD ["zip", "-r", "telemetry-service.zip", "telemetry-service"]
