@@ -1,5 +1,5 @@
 FROM node:6-alpine
-MAINTAINER "Mahesh" "manojv@ilimi.in"
+MAINTAINER "Mahesh" "mahesh@ilimi.in"
 RUN apk update \
     && apk add unzip \
     && apk add curl \
