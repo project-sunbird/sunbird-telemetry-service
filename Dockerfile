@@ -10,6 +10,6 @@ USER sunbird
 RUN mkdir -p /home/sunbird/telemetry
 WORKDIR /home/sunbird/telemetry
 COPY ./telemetry-service.zip  /home/sunbird/telemetry/
-RUN unzip /home/sunbird/mw/telemetry-service.zip
+RUN unzip /home/sunbird/telemetry/telemetry-service.zip
 WORKDIR /home/sunbird/telemetry/telemetry-service/
 CMD ["node", "app.js", "&"]
