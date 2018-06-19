@@ -4,7 +4,11 @@ var Dispatcher = require('../dispatcher/dispatcher').Dispatcher;
 const localStorageEnabled = process.env.telemetry_local_storage_enabled || 'true';
 const proxyTelemetryData = process.env.telemetry_proxy_pass_through;
 
-// TODO: Make this efficient. Implementation to be similar to typesafe config
+// TODO: Make this efficient. Implementation to be similar to typesafe config. Right now one configuration holds 
+// together all supported transport configurations
+//
+// const dispatcher = process.env.telemetry_local_storage_type;
+// const dispatcherOptions = ConfigFactory.getConfig(dispatcher);
 const config = {
     level: 'info',
     dispatcher: process.env.telemetry_local_storage_type,
