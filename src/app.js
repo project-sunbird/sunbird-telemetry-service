@@ -18,5 +18,5 @@ cluster(function(worker) {
   app.use(cookieParser());
   app.use('/', indexRouter);
   module.exports = app;
-  return app.listen(9000);
+  return app.listen(process.env.telemetry_service_port || 9001);
 }, {count: (process.env.telemetry_service_threads || os.cpus().length)});
