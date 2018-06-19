@@ -1,132 +1,85 @@
-/**
- * 
- */
 package controllers;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.net.HttpHeaders;
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.common.exception.ProjectCommonException;
 import org.sunbird.common.models.util.LoggerEnum;
 import org.sunbird.common.models.util.ProjectLogger;
 import org.sunbird.common.request.Request;
 import org.sunbird.common.responsecode.ResponseCode;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import controller.mapper.RequestMapper;
+import org.sunbird.controllers.BaseController;
 import play.libs.F;
 import play.libs.F.Promise;
+import play.libs.Json;
+import play.mvc.Http.RawBuffer;
+import play.mvc.Http.RequestBody;
 import play.mvc.Result;
+import util.Constant;
+import util.Message;
+import util.TelemetryRequestValidator;
 
 /**
- * This controller will handle all sunbird telemetry request data.
- * 
- * @author Manzarul
+ * Telemetry controller handles Telemetry APIs.
  *
+ * @author Mahesh Kumar Gangula
  */
 public class TelemetryController extends BaseController {
+  /**
+   * Save telemetry information. Request body either with content type application/json or content
+   * encoding gzip.
+   *
+   * @return Return a promise for telemetry API result.
+   */
+  public F.Promise<Result> save() {
+    try {
+      String contentTypeHeader = request().getHeader(HttpHeaders.CONTENT_TYPE);
+      String encodingHeader = request().getHeader(HttpHeaders.ACCEPT_ENCODING);
+      Request request = new Request();
+      request.setOperation(Constant.DISPATCH_TELEMETRY_OPERATION_NAME);
+      request.put(Constant.HEADERS, request().headers());
+      RequestBody reqBody = request().body();
+      if (reqBody == null) {
+        // throwing invalid data exception with proper error msg.
+        throw createClientExcptionWithInvalidData(Message.INVALID_REQ_BODY_MSG_ERROR);
+      }
+      if (Constant.APPLICATION_JSON.equalsIgnoreCase(contentTypeHeader)) {
+        ProjectLogger.log(
+            "TelemetryController:save: Received telemetry in JSON format.", LoggerEnum.INFO.name());
+        request.put(Constant.BODY, Json.stringify(request().body().asJson()));
+        // doing validation for request body should not be empty, should have event array
+        TelemetryRequestValidator.validateTelemetryRequest(request, Constant.APPLICATION_JSON);
+      } else if ((Constant.APPLICATION_OCTET.equalsIgnoreCase(contentTypeHeader)
+              || Constant.APPLICATION_ZIP.equalsIgnoreCase(contentTypeHeader))
+          && StringUtils.containsIgnoreCase(encodingHeader, Constant.GZIP)) {
+        ProjectLogger.log(
+            "TelemetryController:save: Received telemetry in gzip format.", LoggerEnum.INFO.name());
+        RawBuffer buffer = reqBody.asRaw();
+        if (buffer == null) {
+          throw createClientExcptionWithInvalidData(Message.INVALID_FILE_MSG_ERROR);
+        }
+        byte[] body = buffer.asBytes();
+        request.put(Constant.BODY, body);
+        // doing validation for request body should not be empty, should have event array
+        TelemetryRequestValidator.validateTelemetryRequest(request, Constant.GZIP);
+      } else {
+        throw createClientExcptionWithInvalidData(Message.INVALID_HEADER_MSG_ERROR);
+      }
+      return actorResponseHandler(getActorRef(), request, timeout, "", request());
 
-	private ObjectMapper mapper = new ObjectMapper();
-	private static int defaultSize = 1000;
+    } catch (Exception e) {
+      ProjectLogger.log(e.getMessage(), e);
+      return Promise.<Result>pure(
+          createCommonExceptionResult(request().path(), e, request().method()));
+    }
+  }
 
-	static {
-		try {
-			String maxCountStr = System.getenv("sunbird_telemetry_request_max_count");
-			if (StringUtils.isNotBlank(maxCountStr)) {
-				defaultSize = Integer.parseInt(maxCountStr);
-				ProjectLogger.log("Updated default telemetry_request_max_count to " + defaultSize,
-						LoggerEnum.INFO.name());
-			} else {
-				ProjectLogger.log("Default telemetry_request_max_count is " + defaultSize, LoggerEnum.INFO.name());
-			}
-		} catch (Exception e) {
-			ProjectLogger.log(
-					"Error while setting default telemetry_request_max_count. Using default value: " + defaultSize,
-					LoggerEnum.ERROR.name());
-		}
-	}
-
-	/**
-	 * This method will receive the telemetry data and send it to EKStep to process
-	 * it.
-	 * 
-	 * @return F.Promise<Result>
-	 */
-	public F.Promise<Result> save() {
-		Request request = null;
-		try {
-			JsonNode requestData = null;
-			String contentTypeHeader = request().getHeader("content-type");
-			String encodingHeader = request().getHeader("accept-encoding");
-			if ("application/json".equalsIgnoreCase(contentTypeHeader)) {
-				ProjectLogger.log("Receiving telemetry in json format.", requestData, LoggerEnum.INFO.name());
-				requestData = request().body().asJson();
-				request = (Request) RequestMapper.mapRequest(requestData, Request.class);
-			} else if ("application/zip".equalsIgnoreCase(contentTypeHeader)
-					&& StringUtils.containsIgnoreCase(encodingHeader, "gzip")) {
-				ProjectLogger.log("Receiving telemetry in gzip format.", LoggerEnum.INFO.name());
-				request = getRequest(request().body().asRaw().asBytes());
-			} else {
-				throw new ProjectCommonException(ResponseCode.invalidRequestData.getErrorCode(),
-						"Please provide valid headers.", ResponseCode.CLIENT_ERROR.getResponseCode());
-			}
-			request.setOperation("dispatchTelemetry");
-			return actorResponseHandler(request, timeout, "", request());
-
-		} catch (Exception e) {
-			return Promise.<Result>pure(createCommonExceptionResult(request().path(), e));
-		}
-
-	}
-
-	private Request getRequest(byte[] bytes) {
-		List<String> allEvents = new ArrayList<String>();
-		try {
-			InputStream is = new ByteArrayInputStream(bytes);
-			BufferedReader bfReader = new BufferedReader(new InputStreamReader(is));
-			String temp = null;
-			while ((temp = bfReader.readLine()) != null) {
-				Map<String, Object> row = mapper.readValue(temp, Map.class);
-				Map<String, Object> data = (Map<String, Object>) row.get("data");
-				if (data != null) {
-					List<Map<String, Object>> events = (List<Map<String, Object>>) data.get("events");
-					if (null != events && !events.isEmpty()) {
-						for (Map<String, Object> event : events) {
-							if (null != event)
-								allEvents.add(mapper.writeValueAsString(event));
-						}
-					}
-				}
-			}
-		} catch (Exception e) {
-			throw new ProjectCommonException(ResponseCode.invalidRequestData.getErrorCode(),
-					"Please provide valid binary gzip file. File structure is invalid.",
-					ResponseCode.CLIENT_ERROR.getResponseCode());
-		}
-
-		if (allEvents.isEmpty()) {
-			throw new ProjectCommonException(ResponseCode.invalidRequestData.getErrorCode(),
-					"Please provide valid binary gzip file. File is empty.",
-					ResponseCode.CLIENT_ERROR.getResponseCode());
-		} else if (allEvents.size() > defaultSize) {
-			throw new ProjectCommonException(ResponseCode.invalidRequestData.getErrorCode(),
-					"Too many events to process. Max limit for a request is " + defaultSize,
-					ResponseCode.CLIENT_ERROR.getResponseCode());
-		} else {
-			Request request = new Request();
-			Map<String, Object> reqMap = new HashMap<String, Object>();
-			reqMap.put("events", allEvents);
-			request.setRequest(reqMap);
-			return request;
-		}
-	}
+  private ProjectCommonException createClientExcptionWithInvalidData(String message) {
+    if (StringUtils.isEmpty(message)) {
+      message = Message.DEFAULT_MSG_ERROR;
+    }
+    return new ProjectCommonException(
+        ResponseCode.invalidRequestData.getErrorCode(),
+        message.trim(),
+        ResponseCode.CLIENT_ERROR.getResponseCode());
+  }
 }

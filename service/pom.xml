@@ -4,9 +4,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.sunbird</groupId>
-	<artifactId>telemetry-api</artifactId>
+	<artifactId>telemetry-service</artifactId>
 	<version>1.0-SNAPSHOT</version>
-	<name>Sunbird Telemetry API</name>
+	<name>Sunbird Telemetry API Service</name>
 	<packaging>play2</packaging>
 
 	<repositories>
@@ -88,6 +88,16 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
+			<groupId>org.sunbird</groupId>
+			<artifactId>kafka-client</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.sunbird</groupId>
+			<artifactId>common-service</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-actor_2.11</artifactId>
             <version>2.5.1</version>
@@ -102,10 +112,16 @@
             <artifactId>akka-remote_2.11</artifactId>
             <version>2.5.1</version>
         </dependency>
-		<dependency>
+		<!-- <dependency>
 			<groupId>org.apache.kafka</groupId>
 			<artifactId>kafka-clients</artifactId>
 			<version>0.10.0.1</version>
+		</dependency> -->
+		<dependency>
+			<groupId>com.typesafe.akka</groupId>
+			<artifactId>akka-testkit_2.11</artifactId>
+			<version>2.5.3</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
@@ -149,6 +165,41 @@
 					<source>1.8</source>
 					<target>1.8</target>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.7.5.201505241946</version>
+				<configuration>
+					<destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile>
+					<dataFile>${basedir}/target/coverage-reports/jacoco-unit.exec</dataFile>
+					<excludes>
+						<exclude>**/common/**</exclude>
+						<exclude>**/router/**</exclude>
+						<exclude>**/routes.class</exclude>
+						<exclude>**/Reverse*/**</exclude>
+						<exclude>**/*.javascript/**</exclude>
+						<exclude>**/util/Constant.class</exclude>
+						<exclude>**/util/Message.class</exclude>
+						<exclude>**/util/Global.class</exclude>
+						<exclude>**/util/LoggingFilter.scala</exclude>
+					</excludes>
+				</configuration>
+				<executions>
+					<execution>
+						<id>jacoco-initialize</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>jacoco-site</id>
+						<phase>package</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

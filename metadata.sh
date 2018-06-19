@@ -1,3 +1,4 @@
 #!/bin/sh
-# return version
-echo '{"name":"learner_service","version":"1.6","org":"sunbird","hubuser":"purplesunbird"}'
+
+# Return service metadata
+echo '{"name":"telemetry-service","version":"1.7.0","org":"sunbird","hubuser":"purplesunbird"}'
