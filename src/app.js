@@ -11,7 +11,7 @@ var indexRouter = require('./routes/index');
 
 cluster(function(worker) {
   var app = express();
-  app.use(bodyParser.json({limit: '50mb'}));
+  app.use(bodyParser.json({limit: '1mb'}));
   app.use(logger('dev'));
   app.use(express.json());
   app.use(bodyParser.urlencoded({ extended: false }));
