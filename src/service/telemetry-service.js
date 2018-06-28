@@ -34,7 +34,9 @@ if(localStorageEnabled === 'true') {
 }
 
 const SUCCESS_RESP = {id: 'api.telemetry', ver: '1.0', ets: new Date().getTime(), params: {}, responseCode: "SUCCESS"};
-const ERROR_RESP = {id: 'api.telemetry', ver: '1.0', ets: new Date().getTime(), params: {err: err}, responseCode: "SERVER_ERROR"};
+function ERROR_RESP(err) {
+    return {id: 'api.telemetry', ver: '1.0', ets: new Date().getTime(), params: {err: err}, responseCode: "SERVER_ERROR"};
+}
 
 exports.dispatch = function(req, res) {
     
@@ -52,7 +54,7 @@ exports.dispatch = function(req, res) {
                 if(err) {
                     console.log('error', err);
                     res.status(500)
-                    res.json(ERROR_RESP);
+                    res.json(ERROR_RESP(err));
                 } else {
                     res.json(SUCCESS_RESP);
                 }
@@ -75,7 +77,7 @@ exports.dispatch = function(req, res) {
             request.post(options, function optionalCallback(err, httpResponse, body) {
                 if (err) {
                     res.status(500)
-                    res.json(ERROR_RESP);
+                    res.json(ERROR_RESP(err));
                 } else {
                     console.log('Proxy successful!  Server responded with:', body);
                     res.json(SUCCESS_RESP);
@@ -85,5 +87,27 @@ exports.dispatch = function(req, res) {
     } else {
         res.status(500)
         res.json({id: 'api.telemetry', ver: '1.0', ets: new Date().getTime(), params: {err: 'Configuration error.'}, responseCode: "SERVER_ERROR"});
+    }
+}
+
+exports.health = function(res) {
+    if(localStorageEnabled === 'true' || telemetryProxyEnabled === 'true') {
+        if (localStorageEnabled === 'true') {
+            dispatcher.health(function(healthy) {
+                if (healthy) {
+                    res.status(200)
+                    res.json({id: 'api.health', ver: '1.0', ets: new Date().getTime(), params: {}, responseCode: "SUCCESS"});
+                } else {
+                    res.status(500)
+                    res.json({id: 'api.health', ver: '1.0', ets: new Date().getTime(), params: {err: 'Telemetry API is unhealthy'}, responseCode: "SERVER_ERROR"});
+                }
+            })
+        } else {
+            res.status(200)
+            res.json({id: 'api.health', ver: '1.0', ets: new Date().getTime(), params: {}, responseCode: "SUCCESS"});
+        }
+    } else {
+        res.status(500)
+        res.json({id: 'api.health', ver: '1.0', ets: new Date().getTime(), params: {err: 'Configuration error.'}, responseCode: "SERVER_ERROR"});
     }
 }
