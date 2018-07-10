@@ -4,7 +4,7 @@ var Dispatcher = require('../dispatcher/dispatcher').Dispatcher;
 
 const localStorageEnabled = process.env.telemetry_local_storage_enabled || 'true';
 const telemetryProxyEnabled = process.env.telemetry_proxy_enabled;
-const proxyURL = process.env.telemetry_proxy_url;
+// const proxyURL = process.env.telemetry_proxy_url;
 
 // TODO: Make this efficient. Implementation to be similar to typesafe config. Right now one configuration holds 
 // together all supported transport configurations
@@ -14,7 +14,8 @@ const proxyURL = process.env.telemetry_proxy_url;
 const config = {
     level: 'info',
     dispatcher: process.env.telemetry_local_storage_type,
-    proxyURL: process.env.telemetry_proxy_pass_through_url,
+    proxyURL: process.env.telemetry_proxy_url,
+    proxyAuthKey: process.env.telemetry_proxy_auth_key,
     encodingType: process.env.telemetry_encoding_type,
     kafkaHost: process.env.telemetry_kafka_broker_list,
     topic: process.env.telemetry_kafka_topic,
@@ -44,7 +45,11 @@ exports.dispatch = function(req, res) {
     if(!message.mid) message.mid = uuidv1();
     message.syncts = new Date().getTime();
     const data = JSON.stringify(message);
-    const headers = {'content-type': req.header('content-type'), 'content-encoding': req.header('content-encoding')};
+    const headers = {'authorization': 'Bearer ' + config.proxyAuthKey};
+    if (req.header('content-type'))
+        headers['content-type'] = req.header('content-type');
+    if (req.header('content-encoding'))
+        headers['content-encoding'] = req.header('content-encoding');
     
     if(localStorageEnabled === 'true' || telemetryProxyEnabled === 'true') {
 
@@ -62,7 +67,7 @@ exports.dispatch = function(req, res) {
         }
         if(localStorageEnabled === 'true' && telemetryProxyEnabled === 'true') {
             // Store locally and proxy to the specified URL. If the proxy fails ignore the error as the local storage is successful. Do a sync later
-            var options = {url:proxyURL, headers: headers, body: data};
+            var options = {url:config.proxyURL, headers: headers, body: data};
             request.post(options, function optionalCallback(err, httpResponse, body) {
                 if (err) {
                     return console.error('Proxy failed:', err);
@@ -71,9 +76,8 @@ exports.dispatch = function(req, res) {
             });
         } 
         if(localStorageEnabled !== 'true' && telemetryProxyEnabled === 'true') {
-            
             // Just proxy
-            var options = {url:proxyURL, headers: headers, body: data};
+            var options = {url:config.proxyURL, headers: headers, body: data};
             request.post(options, function optionalCallback(err, httpResponse, body) {
                 if (err) {
                     res.status(500)
