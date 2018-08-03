@@ -27,9 +27,10 @@ Cassandra.prototype._insertLog = function (level, msg, meta, callback) {
     if (!key) {
       return callback(new Error('Partition ' + this.options.partitionBy + ' not supported'), false);
     }
+    var query = 'INSERT INTO ' + this.options.table + ' (key, mid, date, level, message, meta) VALUES (?, ?, ?, ?, ?, ?)' + (this.options.cassandraTtl ? (' USING TTL ' + this.options.cassandraTtl) : '');
     //execute as a prepared query as it would be executed multiple times
     return this.client.execute(
-      'INSERT INTO ' + this.options.table + ' (key, mid, date, level, message, meta) VALUES (?, ?, ?, ?, ?, ?)',
+      query,
       [key, meta.mid, new Date(), level, msg, util.inspect(meta)],
       {prepare: true, consistency: this.options.consistency},
       callback);

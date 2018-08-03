@@ -38,4 +38,10 @@ function Dispatcher (options) {
 Dispatcher.prototype.dispatch = function(mid, message, cb) {
     this.logger.log('info', message, {mid: mid}, cb);
 };
+
+Dispatcher.prototype.health = function(cb) {
+    // TODO: here we hardcoded the transport name as kafka. 
+    // We should implement health method for other transport and get transport using dispatcher name.
+    this.logger.transports['kafka'].health(cb);
+};
 module.exports.Dispatcher = Dispatcher;
