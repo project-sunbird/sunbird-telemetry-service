@@ -42,4 +42,4 @@ class Dispatcher {
     };
 }
 
-module.exports.Dispatcher = Dispatcher;
+module.exports = { Dispatcher };

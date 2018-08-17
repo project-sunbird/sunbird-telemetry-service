@@ -1,16 +1,9 @@
-var express = require('express');
-var router = express.Router();
-var telemetryService = require('../service/telemetry-service');
+const express = require('express'),
+  router = express.Router(),
+  telemetryService = require('../service/telemetry-service');
 
-router.post('/v1/telemetry', function(req, res, next) {
-  req.body.did = req.header('x-device-id');
-  req.body.channel = req.header('x-channel-id');
-  req.body.pid = req.header('x-app-id');
-  telemetryService.dispatch(req, res);
-})
+router.post('/v1/telemetry', (req, res) => telemetryService.dispatch(req, res))
 
-router.get('/health', function(req, res, next) {
-  telemetryService.health(res);
-})
+router.get('/health', (req, res) => telemetryService.health(req, res))
 
 module.exports = router;

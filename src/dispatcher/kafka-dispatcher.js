@@ -37,4 +37,4 @@ class KafkaDispatcher extends winston.Transport {
 }
 winston.transports.Kafka = KafkaDispatcher;
 
-module.exports.KafkaDispatcher = KafkaDispatcher;
+module.exports = { KafkaDispatcher };
