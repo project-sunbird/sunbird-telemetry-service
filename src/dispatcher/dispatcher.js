@@ -16,18 +16,19 @@ class Dispatcher {
     constructor(options) {
         if (!options) throw new Error('Dispatcher options are required');
         this.logger = new(winston.Logger)({level: 'info'});
-        if (options.dispatcher == 'kafka') {
-            this.logger.add(winston.transports.Kafka, options);
+        this.options = options;
+        if (this.options.dispatcher == 'kafka') {
+            this.logger.add(winston.transports.Kafka, this.options);
             console.log('Kakfa transport enabled !!!');
-        } else if (options.dispatcher == 'file') {
-            const config = Object.assign(defaultFileOptions, options);
+        } else if (this.options.dispatcher == 'file') {
+            const config = Object.assign(defaultFileOptions, this.options);
             this.logger.add(winston.transports.DailyRotateFile, config);
             console.log('File transport enabled !!!');
-        } else if (options.dispatcher === 'cassandra') {
-            this.logger.add(winston.transports.Cassandra, options);
+        } else if (this.options.dispatcher === 'cassandra') {
+            this.logger.add(winston.transports.Cassandra, this.options);
             console.log('Cassandra transport enabled !!!');
         } else { // Log to console
-            const config = Object.assign({json: true,stringify: (obj) => JSON.stringify(obj)}, options);
+            const config = Object.assign({json: true,stringify: (obj) => JSON.stringify(obj)}, this.options);
             this.logger.add(winston.transports.Console, config);
             console.log('Console transport enabled !!!');
         }
@@ -38,7 +39,11 @@ class Dispatcher {
     health(cb) {
         // TODO: here we hardcoded the transport name as kafka. 
         // We should implement health method for other transport and get transport using dispatcher name.
-        this.logger.transports['kafka'].health(cb);
+        if (this.options.dispatcher == 'kafka') {
+            this.logger.transports['kafka'].health(cb);
+        } else {
+            cb(true)
+        }
     };
 }
 

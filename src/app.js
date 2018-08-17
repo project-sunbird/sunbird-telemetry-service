@@ -1,12 +1,11 @@
 const express = require('express'),
-cluster = require('express-cluster'),
-cookieParser = require('cookie-parser'),
-logger = require('morgan'),
-bodyParser = require('body-parser'),
-os = require('os'),
-indexRouter = require('./routes'),
-port = process.env.telemetry_service_port || 9001,
-threads = process.env.telemetry_service_threads || os.cpus().length;
+  cluster = require('express-cluster'),
+  cookieParser = require('cookie-parser'),
+  logger = require('morgan'),
+  bodyParser = require('body-parser'),
+  envVariables = require('./envVariables'),
+  port = envVariables.port,
+  threads = envVariables.threads;
 
 cluster((worker) => {
   const app = express();
@@ -23,11 +22,13 @@ cluster((worker) => {
   }));
   app.use(logger('dev'));
   app.use(express.json());
-  app.use(bodyParser.urlencoded({ 
+  app.use(bodyParser.urlencoded({
     extended: false
   }));
   app.use(cookieParser());
-  app.use('/', indexRouter);
+  app.use('/', require('./routes'));
   module.exports = app;
-  return app.listen( port, () => console.log(`telemetry services is running on port ${port} with ${threads} threads`));
-}, { count: threads });
+  return app.listen(port, () => console.log(`telemetry services is running on port ${port} with ${threads} threads`));
+}, {
+  count: threads
+});
