@@ -1,19 +1,16 @@
 const chai = require('chai'),
-    chaiHttp = require('chai-http'),
     sinon = require('sinon'),
     expect = chai.expect,
     KafkaDispatcher = require('./../../dispatcher/kafka-dispatcher').KafkaDispatcher;
 let config;
 describe('kafka-dispatcher Service', () => {
-    before(() => {
+    beforeEach(function() {
         config = {
             level: 'info',
             filename: 'telemetry-%DATE%.log',
             maxSize: '100m',
             maxFiles: '100',
             partitionBy: 'hour',
-            kafkaHost: "localhost:9092",
-            topic: "local.ingestion"
         }
     })
 

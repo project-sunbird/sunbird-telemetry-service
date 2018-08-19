@@ -1,2 +1,6 @@
 package-lock.json
 node_modules
+.nyc_output
+coverage
+.audit.json
+telemetry-*.log

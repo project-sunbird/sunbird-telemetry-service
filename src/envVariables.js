@@ -2,6 +2,8 @@ const os = require('os');
 
 const envVariables = {
     level: process.env.telemetry_log_level || 'info',
+    localStorageEnabled: process.env.telemetry_local_storage_enabled || 'true',
+    telemetryProxyEnabled: process.env.telemetry_proxy_enabled,
     dispatcher: process.env.telemetry_local_storage_type || 'kafka',
     proxyURL: process.env.telemetry_proxy_url,
     proxyAuthKey: process.env.telemetry_proxy_auth_key,
@@ -15,8 +17,6 @@ const envVariables = {
     keyspace: process.env.telemetry_cassandra_keyspace,
     contactPoints: (process.env.telemetry_cassandra_contactpoints || 'localhost').split(','),
     cassandraTtl: process.env.telemetry_cassandra_ttl,
-    localStorageEnabled: process.env.telemetry_local_storage_enabled || 'true',
-    telemetryProxyEnabled: process.env.telemetry_proxy_enabled,
     port: process.env.telemetry_service_port || 9001,
     threads: process.env.telemetry_service_threads || os.cpus().length
 }

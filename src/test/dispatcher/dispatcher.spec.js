@@ -5,18 +5,15 @@ const chai = require('chai'),
     Dispatcher = require('./../../dispatcher/dispatcher').Dispatcher;
 let config;
 describe('dispatcher Service', () => {
-    before(() => {
+    beforeEach(function() {
         config = {
             level: 'info',
-            // proxyURL: process.env.telemetry_proxy_url,
-            // proxyAuthKey: process.env.telemetry_proxy_auth_key,
-            // encodingType: process.env.telemetry_encoding_type,
             filename: 'telemetry-%DATE%.log',
             maxSize: '100m',
             maxFiles: '100',
             partitionBy: 'hour',
-            kafkaHost: "localhost:9092",
-            topic: "local.ingestion"
+            keyspace: 'telemetry',
+            contactPoints: 'localhost:9002'
         }
     })
 
@@ -64,13 +61,14 @@ describe('dispatcher Service', () => {
 
     it('should check health of kafka if config.dispatcher is passed as "kafka" and health is called', function () {
         config.dispatcher = 'kafka';
-        cb = () => {};
+        const stub = { cb: () => {}} ;
+        sinon.spy(stub , 'cb');
         const dispatcher = new Dispatcher(config);
         sinon.spy(dispatcher.logger.transports.kafka, 'health');
-        dispatcher.health(cb);
+        dispatcher.health(stub.cb);
         expect(dispatcher.logger.transports).to.have.property('kafka');
         sinon.assert.calledOnce(dispatcher.logger.transports.kafka.health);
-        sinon.assert.calledWith(dispatcher.logger.transports.kafka.health, cb);
+        sinon.assert.calledWith(dispatcher.logger.transports.kafka.health, stub.cb);
     })
 
     it('should create kafka dispatcher if config.dispatcher is not passed or other than "kafka/file/cassandra"', function () {
@@ -83,8 +81,8 @@ describe('dispatcher Service', () => {
 
     it('should log to console if config.dispatcher is passed as is not passed or other than "kafka/file/cassandra" and dispatch is called', function () {
         config.dispatcher = 'console';
-        cb = () => {};
         const dispatcher = new Dispatcher(config);
+        cb = () => {}
         sinon.spy(dispatcher.logger, 'log');
         dispatcher.dispatch('mid', {}, cb);
         expect(dispatcher.logger.transports).to.have.property('console');
@@ -92,5 +90,26 @@ describe('dispatcher Service', () => {
         sinon.assert.calledWith(dispatcher.logger.log, 'info', {}, {
             mid: 'mid'
         }, cb);
+    })
+
+    it('should check health of dispatcher if config.dispatcher is passed as "console" or  other than "kafka/file/cassandra" and callback should be called with true', function () {
+        config.dispatcher = 'console';
+        const stub = { cb: () => {}} ;
+        const dispatcher = new Dispatcher(config);
+        sinon.spy(stub , 'cb');
+        dispatcher.health(stub.cb);
+        expect(dispatcher.logger.transports).to.have.property('console');
+        sinon.assert.calledOnce(stub.cb);
+        sinon.assert.calledWith(stub.cb, true);
+    })
+
+    it('should check health of dispatcher if config.dispatcher is passed as "file/cassandra" and callback should be called with false', function () {
+        config.dispatcher = 'file';
+        const stub = { cb: () => {}} ;
+        const dispatcher = new Dispatcher(config);
+        sinon.spy(stub , 'cb');
+        dispatcher.health(stub.cb);
+        sinon.assert.calledOnce(stub.cb);
+        sinon.assert.calledWith(stub.cb, false);
     })
 });

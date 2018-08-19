@@ -1,18 +1,15 @@
 const uuidv1 = require('uuid/v1'),
     request = require('request'),
-    Dispatcher = require('../dispatcher/dispatcher').Dispatcher;
+    DispatcherClass = require('../dispatcher/dispatcher').Dispatcher;
     config = require('../envVariables')
 
 // TODO: Make this efficient. Implementation to be similar to typesafe config. Right now one configuration holds 
 // together all supported transport configurations
 
 class TelemetryService {
-    constructor(config) {
+    constructor(Dispatcher, config) {
         this.config = config;
-        this.dispatcher;
-        if (this.config.localStorageEnabled === 'true') {
-            this.dispatcher = new Dispatcher(config);
-        }
+        this.dispatcher = this.config.localStorageEnabled === 'true' ? new Dispatcher(config) : undefined;
     }
     dispatch(req, res) {
         const message = req.body;
@@ -29,9 +26,9 @@ class TelemetryService {
             } else if (this.config.localStorageEnabled === 'true' && this.config.telemetryProxyEnabled === 'true') {
                 // Store locally and proxy to the specified URL. If the proxy fails ignore the error as the local storage is successful. Do a sync later
                 const options = this.getProxyRequestObj(req, data);
-                request.post(options, (err, res, body) => {
+                request.post(options, (err, data) => {
                     if (err) console.error('Proxy failed:', err);
-                    else console.log('Proxy successful!  Server responded with:', body);
+                    else console.log('Proxy successful!  Server responded with:', data.body);
                 });
                 this.dispatcher.dispatch(message.mid, data, this.getRequestCallBack(req, res));
             } else if (this.config.localStorageEnabled !== 'true' && this.config.telemetryProxyEnabled === 'true') {
@@ -40,57 +37,27 @@ class TelemetryService {
                 request.post(options, this.getRequestCallBack(req, res));
             }
         } else {
-            this.sendError(res, {
-                id: 'api.telemetry',
-                params: {
-                    err: 'Configuration error.'
-                },
-            });
+            this.sendError(res, { id: 'api.telemetry', params: { err: 'Configuration error' }});
         }
     }
     health(req, res) {
         if (this.config.localStorageEnabled === 'true') {
             this.dispatcher.health((healthy) => {
-                if (healthy) {
-                    this.sendSuccess(res, {
-                        id: 'api.health',
-                    });
-                } else {
-                    this.sendError(res, {
-                        id: 'api.health',
-                        params: {
-                            err: 'Telemetry API is unhealthy'
-                        }
-                    });
-                }
+                if (healthy) 
+                    this.sendSuccess(res, { id: 'api.health' });
+                else 
+                    this.sendError(res, { id: 'api.health', params: { err: 'Telemetry API is unhealthy' } });
             })
         } else if (this.config.telemetryProxyEnabled === 'true') {
-            this.sendSuccess(res, {
-                id: 'api.health'
-            });
+            this.sendSuccess(res, { id: 'api.health' });
         } else {
-            this.sendError(res, {
-                id: 'api.health',
-                params: {
-                    err: 'Configuration error.'
-                }
-            });
+            this.sendError(res, { id: 'api.health', params: { err: 'Configuration error' } });
         }
     }
     getRequestCallBack(req, res) {
         return (err, data) => {
-            if (err) {
-                this.sendError(res, {
-                    id: 'api.telemetry',
-                    params: {
-                        err: err
-                    },
-                });
-            } else {
-                this.sendSuccess(res, {
-                    id: 'api.telemetry',
-                });
-            }
+            if (err) this.sendError(res, { id: 'api.telemetry', params: { err: err } });
+            else this.sendSuccess(res, { id: 'api.telemetry' });
         }
     }
     sendError(res, options) {
@@ -101,7 +68,7 @@ class TelemetryService {
             params: options.params || {},
             responseCode: options.responseCode || 'SERVER_ERROR'
         }
-        res.status(500)
+        res.status(500);
         res.json(resObj);
     }
     sendSuccess(res, options) {
@@ -112,17 +79,13 @@ class TelemetryService {
             params: options.params || {},
             responseCode: options.responseCode || 'SUCCESS'
         }
-        res.status(200)
+        res.status(200);
         res.json(resObj);
     }
     getProxyRequestObj(req, data) {
-        const headers = {
-            'authorization': 'Bearer ' + config.proxyAuthKey
-        };
-        if (req.header('content-type'))
-            headers['content-type'] = req.get('content-type');
-        if (req.header('content-encoding'))
-            headers['content-encoding'] = req.get('content-encoding');
+        const headers = { 'authorization': 'Bearer ' + config.proxyAuthKey };
+        if (req.header('content-type')) headers['content-type'] = req.get('content-type');
+        if (req.header('content-encoding')) headers['content-encoding'] = req.get('content-encoding');
         return {
             url: this.config.proxyURL,
             headers: headers,
@@ -131,6 +94,4 @@ class TelemetryService {
     }
 }
 
-const telemetryService = new TelemetryService(config);
-
-module.exports = telemetryService;
+module.exports = new TelemetryService(DispatcherClass, config);
