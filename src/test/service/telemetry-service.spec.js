@@ -1,12 +1,10 @@
 const chai = require('chai'),
-    chaiHttp = require('chai-http'),
     sinon = require('sinon'),
     expect = chai.expect,
     telemetryServicePath = './../../service/telemetry-service',
     envVariablesPath = './../../envVariables',
-    DispatcherClass = require('./../../dispatcher/dispatcher').Dispatcher,
     request = require('request');
-let config, req, res, date, fakePostMethod;
+let req, res, date, fakePostMethod;
 
 describe('telemetry Service', () => {
 
@@ -16,7 +14,7 @@ describe('telemetry Service', () => {
         req = sinon.stub({header: () => true, get: () => 'header', body: {}});
         res = sinon.stub({status: () =>{}, json: ()=>{}});
         date = sinon.useFakeTimers();
-        fakePostMethod = sinon.stub(request, "post"); // .callsFake(({}, cb) => { cb(null, { body: {mes: 'success' }})});
+        fakePostMethod = sinon.stub(request, "post");
     });
     afterEach(() => {
         fakePostMethod.restore(); // Unwraps the spy
@@ -63,9 +61,6 @@ describe('telemetry Service', () => {
         process.env.telemetry_proxy_enabled = 'false';
         process.env.telemetry_log_level = 'info';
         process.env.telemetry_local_storage_type = undefined;
-        // let Dispatcher = sinon.stub(DispatcherClass, 'constructor').callsFake(() => {
-        //     return {};
-        // });
         telemetryService = require(telemetryServicePath);
         expect(telemetryService.dispatcher.logger.transports).to.have.property('console');
     });

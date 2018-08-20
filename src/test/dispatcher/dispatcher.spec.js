@@ -1,9 +1,9 @@
 const chai = require('chai'),
-    chaiHttp = require('chai-http'),
     sinon = require('sinon'),
     expect = chai.expect,
     Dispatcher = require('./../../dispatcher/dispatcher').Dispatcher;
 let config;
+
 describe('dispatcher Service', () => {
     beforeEach(function() {
         config = {

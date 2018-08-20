@@ -4,7 +4,7 @@
   "main": "app.js",
   "author": "sunbird",
   "scripts": {
-    "test": "nyc --reporter=html --reporter=text ./node_modules/mocha/bin/mocha 'test/**/*.js'"
+    "test": "nyc --reporter=html --reporter=text ./node_modules/mocha/bin/mocha 'test/**/*.js'  --reporter mochawesome --exit"
   },
   "dependencies": {
     "body-parser": "~1.18.3",
@@ -19,6 +19,7 @@
     "kafka-node": "~2.6.1",
     "lodash": "^4.17.10",
     "mocha": "^5.2.0",
+    "mochawesome": "^3.0.3",
     "morgan": "~1.9.0",
     "nyc": "^12.0.2",
     "request": "2.87.0",

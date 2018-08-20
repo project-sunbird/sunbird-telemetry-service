@@ -4,3 +4,4 @@ node_modules
 coverage
 .audit.json
 telemetry-*.log
+mochawesome-report
