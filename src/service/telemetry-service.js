@@ -13,9 +13,9 @@ class TelemetryService {
     }
     dispatch(req, res) {
         const message = req.body;
-        message.did = req.header('x-device-id');
-        message.channel = req.header('x-channel-id');
-        message.pid = req.header('x-app-id');
+        message.did = req.get('x-device-id');
+        message.channel = req.get('x-channel-id');
+        message.pid = req.get('x-app-id');
         if (!message.mid) message.mid = uuidv1();
         message.syncts = new Date().getTime();
         const data = JSON.stringify(message);
@@ -84,8 +84,8 @@ class TelemetryService {
     }
     getProxyRequestObj(req, data) {
         const headers = { 'authorization': 'Bearer ' + config.proxyAuthKey };
-        if (req.header('content-type')) headers['content-type'] = req.get('content-type');
-        if (req.header('content-encoding')) headers['content-encoding'] = req.get('content-encoding');
+        if (req.get('content-type')) headers['content-type'] = req.get('content-type');
+        if (req.get('content-encoding')) headers['content-encoding'] = req.get('content-encoding');
         return {
             url: this.config.proxyURL,
             headers: headers,

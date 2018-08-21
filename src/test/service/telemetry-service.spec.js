@@ -16,9 +16,11 @@ describe('telemetry Service', () => {
         date = sinon.useFakeTimers();
         fakePostMethod = sinon.stub(request, "post");
     });
+
     afterEach(() => {
         fakePostMethod.restore(); // Unwraps the spy
     });
+
     it('should return telemetryService with dispatch/health methods', function () {
         telemetryService = require(telemetryServicePath);
         expect(telemetryService).to.be.an('object');
@@ -31,8 +33,6 @@ describe('telemetry Service', () => {
         process.env.telemetry_proxy_enabled = 'false';
         process.env.telemetry_log_level = 'info';
         process.env.telemetry_local_storage_type = 'kafka';
-        process.env.telemetry_kafka_broker_list = 'localhost:9092';
-        process.env.telemetry_kafka_topic = 'local.ingestion';
         telemetryService = require(telemetryServicePath);
         expect(telemetryService.config.localStorageEnabled).to.equal(process.env.telemetry_local_storage_enabled);
         expect(telemetryService.config.telemetryProxyEnabled).to.equal(process.env.telemetry_proxy_enabled);
@@ -50,8 +50,6 @@ describe('telemetry Service', () => {
         process.env.telemetry_proxy_enabled = 'false';
         process.env.telemetry_log_level = 'info';
         process.env.telemetry_local_storage_type = 'kafka';
-        process.env.telemetry_kafka_broker_list = 'localhost:9092';
-        process.env.telemetry_kafka_topic = 'local.ingestion';
         telemetryService = require(telemetryServicePath);
         expect(telemetryService.dispatcher.logger.transports).to.have.property('kafka');
     });
@@ -70,8 +68,6 @@ describe('telemetry Service', () => {
         process.env.telemetry_proxy_enabled = 'false';
         process.env.telemetry_log_level = 'info';
         process.env.telemetry_local_storage_type = 'kafka';
-        process.env.telemetry_kafka_broker_list = 'localhost:9092';
-        process.env.telemetry_kafka_topic = 'local.ingestion';
         telemetryService = require(telemetryServicePath);
         sinon.stub(telemetryService.dispatcher, 'health').callsFake((cb) => cb(true));
         telemetryService.health(req, res);
@@ -93,8 +89,6 @@ describe('telemetry Service', () => {
         process.env.telemetry_proxy_enabled = 'false';
         process.env.telemetry_log_level = 'info';
         process.env.telemetry_local_storage_type = 'kafka';
-        process.env.telemetry_kafka_broker_list = 'localhost:9092';
-        process.env.telemetry_kafka_topic = 'local.ingestion';
         telemetryService = require(telemetryServicePath);
         sinon.stub(telemetryService.dispatcher, 'health').callsFake((cb) => cb(false));
         telemetryService.health(req, res);
@@ -116,8 +110,6 @@ describe('telemetry Service', () => {
         process.env.telemetry_proxy_enabled = 'true';
         process.env.telemetry_log_level = 'info';
         process.env.telemetry_local_storage_type = 'kafka';
-        process.env.telemetry_kafka_broker_list = 'localhost:9092';
-        process.env.telemetry_kafka_topic = 'local.ingestion';
         telemetryService = require(telemetryServicePath);
         telemetryService.health(req, res);
         sinon.assert.calledWith(res.status, 200);
@@ -137,8 +129,6 @@ describe('telemetry Service', () => {
         process.env.telemetry_proxy_enabled = 'false';
         process.env.telemetry_log_level = 'info';
         process.env.telemetry_local_storage_type = 'kafka';
-        process.env.telemetry_kafka_broker_list = 'localhost:9092';
-        process.env.telemetry_kafka_topic = 'local.ingestion';
         telemetryService = require(telemetryServicePath);
         telemetryService.health(req, res);
         sinon.assert.calledWith(res.status, 500);
@@ -158,8 +148,6 @@ describe('telemetry Service', () => {
         process.env.telemetry_proxy_enabled = 'false';
         process.env.telemetry_log_level = 'info';
         process.env.telemetry_local_storage_type = 'kafka';
-        process.env.telemetry_kafka_broker_list = 'localhost:9092';
-        process.env.telemetry_kafka_topic = 'local.ingestion';
         telemetryService = require(telemetryServicePath);
         sinon.stub(telemetryService.dispatcher, 'dispatch').callsFake((message, body, cb) => cb(null, {body: {}}));
         telemetryService.dispatch(req, res);
@@ -182,8 +170,6 @@ describe('telemetry Service', () => {
         process.env.telemetry_proxy_enabled = 'false';
         process.env.telemetry_log_level = 'info';
         process.env.telemetry_local_storage_type = 'kafka';
-        process.env.telemetry_kafka_broker_list = 'localhost:9092';
-        process.env.telemetry_kafka_topic = 'local.ingestion';
         telemetryService = require(telemetryServicePath);
         sinon.stub(telemetryService.dispatcher, 'dispatch').callsFake((message, body, cb) => cb('not found', {body: {}}));
         telemetryService.dispatch(req, res);
@@ -206,8 +192,6 @@ describe('telemetry Service', () => {
         process.env.telemetry_proxy_enabled = 'true';
         process.env.telemetry_log_level = 'info';
         process.env.telemetry_local_storage_type = 'kafka';
-        process.env.telemetry_kafka_broker_list = 'localhost:9092';
-        process.env.telemetry_kafka_topic = 'local.ingestion';
         telemetryService = require(telemetryServicePath);
         fakePostMethod.callsFake(({}, cb) => { cb(null, { body: {mes: 'success' }})});
         sinon.stub(telemetryService.dispatcher, 'dispatch').callsFake((message, body, cb) => cb(null, {body: {}}));
@@ -231,8 +215,6 @@ describe('telemetry Service', () => {
         process.env.telemetry_proxy_enabled = 'true';
         process.env.telemetry_log_level = 'info';
         process.env.telemetry_local_storage_type = 'kafka';
-        process.env.telemetry_kafka_broker_list = 'localhost:9092';
-        process.env.telemetry_kafka_topic = 'local.ingestion';
         telemetryService = require(telemetryServicePath);
         fakePostMethod.callsFake(({}, cb) => { cb({ mes: 'proxy failed' }, null )});
         sinon.stub(telemetryService.dispatcher, 'dispatch').callsFake((message, body, cb) => cb(null, {body: {}}));
@@ -256,8 +238,6 @@ describe('telemetry Service', () => {
         process.env.telemetry_proxy_enabled = 'true';
         process.env.telemetry_log_level = 'info';
         process.env.telemetry_local_storage_type = 'kafka';
-        process.env.telemetry_kafka_broker_list = 'localhost:9092';
-        process.env.telemetry_kafka_topic = 'local.ingestion';
         telemetryService = require(telemetryServicePath);
         fakePostMethod.callsFake(({}, cb) => { cb(null, { body: {mes: 'success' }})});
         telemetryService.dispatch(req, res);
@@ -280,8 +260,6 @@ describe('telemetry Service', () => {
         process.env.telemetry_proxy_enabled = 'true';
         process.env.telemetry_log_level = 'info';
         process.env.telemetry_local_storage_type = 'kafka';
-        process.env.telemetry_kafka_broker_list = 'localhost:9092';
-        process.env.telemetry_kafka_topic = 'local.ingestion';
         telemetryService = require(telemetryServicePath);
         fakePostMethod.callsFake(({}, cb) => { cb('proxy failed', null )});
         telemetryService.dispatch(req, res);
@@ -304,8 +282,6 @@ describe('telemetry Service', () => {
         process.env.telemetry_proxy_enabled = 'false';
         process.env.telemetry_log_level = 'info';
         process.env.telemetry_local_storage_type = 'kafka';
-        process.env.telemetry_kafka_broker_list = 'localhost:9092';
-        process.env.telemetry_kafka_topic = 'local.ingestion';
         telemetryService = require(telemetryServicePath);
         telemetryService.dispatch(req, res);
         expect(telemetryService.dispatcher).to.equal(undefined);
