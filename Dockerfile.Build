@@ -1,4 +1,4 @@
-FROM node:6-alpine
+FROM node:8.11-alpine
 MAINTAINER "Mahesh" "mahesh@ilimi.in"
 RUN apk update \
     && apk add zip \
