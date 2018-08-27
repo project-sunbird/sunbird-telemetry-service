@@ -5,7 +5,7 @@
   "author": "sunbird",
   "scripts": {
     "test": "nyc --reporter=html --reporter=text --reporter=lcov ./node_modules/mocha/bin/mocha 'test/**/*.js'  --reporter mochawesome --exit",
-    "test-with-coverage": "nyc --reporter=html --reporter=text --reporter=lcov ./node_modules/mocha/bin/mocha 'test/**/*.js'  --reporter mochawesome --exit && && cat ./coverage/lcov.info | codacy-coverage"
+    "test-with-coverage": "nyc --reporter=html --reporter=text --reporter=lcov ./node_modules/mocha/bin/mocha 'test/**/*.js'  --reporter mochawesome --exit && cat ./coverage/lcov.info | codacy-coverage"
   },
   "dependencies": {
     "body-parser": "~1.18.3",
