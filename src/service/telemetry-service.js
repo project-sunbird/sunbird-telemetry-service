@@ -57,6 +57,7 @@ class TelemetryService {
     getRequestCallBack(req, res) {
         return (err, data) => {
             if (err) {
+                console.log('error', err);
                 this.sendError(res, { id: 'api.telemetry', params: { err: err } });
             }
             else {
