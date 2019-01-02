@@ -1,7 +1,7 @@
 const uuidv1 = require('uuid/v1'),
     request = require('request'),
     DispatcherClass = require('../dispatcher/dispatcher').Dispatcher;
-    config = require('../envVariables')
+config = require('../envVariables')
 
 // TODO: Make this efficient. Implementation to be similar to typesafe config. Right now one configuration holds 
 // together all supported transport configurations
@@ -37,15 +37,15 @@ class TelemetryService {
                 request.post(options, this.getRequestCallBack(req, res));
             }
         } else {
-            this.sendError(res, { id: 'api.telemetry', params: { err: 'Configuration error' }});
+            this.sendError(res, { id: 'api.telemetry', params: { err: 'Configuration error' } });
         }
     }
     health(req, res) {
         if (this.config.localStorageEnabled === 'true') {
             this.dispatcher.health((healthy) => {
-                if (healthy) 
+                if (healthy)
                     this.sendSuccess(res, { id: 'api.health' });
-                else 
+                else
                     this.sendError(res, { id: 'api.health', params: { err: 'Telemetry API is unhealthy' } });
             })
         } else if (this.config.telemetryProxyEnabled === 'true') {
@@ -56,8 +56,13 @@ class TelemetryService {
     }
     getRequestCallBack(req, res) {
         return (err, data) => {
-            if (err) this.sendError(res, { id: 'api.telemetry', params: { err: err } });
-            else this.sendSuccess(res, { id: 'api.telemetry' });
+            if (err) {
+                console.log('error', err);
+                this.sendError(res, { id: 'api.telemetry', params: { err: err } });
+            }
+            else {
+                this.sendSuccess(res, { id: 'api.telemetry' });
+            }
         }
     }
     sendError(res, options) {
