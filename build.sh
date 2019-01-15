@@ -2,7 +2,7 @@
 # Build script
 # set -o errexit
 build_tag=$1
-name=config-service
+name=telemetry-service
 node=$2
 org=$3
 
