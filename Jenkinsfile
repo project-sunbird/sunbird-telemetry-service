@@ -1,3 +1,5 @@
+package Build
+
 node('build-slave') {
     try {
         String ANSI_GREEN = "\u001B[32m"
@@ -46,7 +48,6 @@ node('build-slave') {
         stage('Build'){
             env.NODE_ENV = "build"
             print "Environment will be : ${env.NODE_ENV}"
-            sh 'mvn clean install -DskipTests=true'
             sh('chmod 777 build.sh')
             sh("./build.sh ${build_tag} ${env.NODE_NAME} ${hub_org}")
         }
