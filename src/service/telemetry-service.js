@@ -18,6 +18,8 @@ class TelemetryService {
         message.pid = req.get('x-app-id');
         if (!message.mid) message.mid = uuidv1();
         message.syncts = new Date().getTime();
+        if(this.config.recordIPAddress)
+            this.storeIPAddressInEvents(req, message);
         const data = JSON.stringify(message);
         if (this.config.localStorageEnabled === 'true' || this.config.telemetryProxyEnabled === 'true') {
             if (this.config.localStorageEnabled === 'true' && this.config.telemetryProxyEnabled !== 'true') {
@@ -96,6 +98,14 @@ class TelemetryService {
             headers: headers,
             body: data
         };
+    }
+    storeIPAddressInEvents(req, message) {
+        if(message['events']) {
+            for(var i = 0; i < message["events"].length; i++) {
+                if(message["events"][i] && message["events"][i]["context"])
+                    message["events"][i]["context"]["ipaddress"] = req.connection.remoteAddress;
+              }
+        }
     }
 }
 
