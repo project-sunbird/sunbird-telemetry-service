@@ -97,6 +97,9 @@ class TelemetryService {
             body: data
         };
     }
+    telemetryServiceHealth(req, res) {
+        this.sendSuccess(res, { id: 'telemetry.api.service.health', responseCode: 'Ok' });
+    }
 }
 
 module.exports = new TelemetryService(DispatcherClass, config);
