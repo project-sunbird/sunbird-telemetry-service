@@ -98,7 +98,7 @@ class TelemetryService {
         };
     }
     telemetryServiceHealth(req, res) {
-        this.sendSuccess(res, { id: 'telemetry.api.health', responseCode: 'Ok' });
+        this.sendSuccess(res, { id: 'telemetry.api.service.health', responseCode: 'Ok' });
     }
 }
 
