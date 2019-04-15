@@ -18,7 +18,16 @@ class TelemetryService {
         message.pid = req.get('x-app-id');
         if (!message.mid) message.mid = uuidv1();
         message.syncts = new Date().getTime();
-        const data = JSON.stringify(message);
+        let data;
+        try {
+            data = JSON.stringify(message);
+        } catch(err){
+            console.log('error while signifying', err);
+        }
+        if(!data){
+            this.sendError(res, { id: 'api.telemetry', params: { err: 'INVALID_DATA' }});
+            return;
+        }
         if (this.config.localStorageEnabled === 'true' || this.config.telemetryProxyEnabled === 'true') {
             if (this.config.localStorageEnabled === 'true' && this.config.telemetryProxyEnabled !== 'true') {
                 // Store locally and respond back with proper status code
