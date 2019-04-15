@@ -24,6 +24,10 @@ class TelemetryService {
         } catch(err){
             console.log('error while signifying', err);
         }
+        if(!data){
+            this.sendError(res, { id: 'api.telemetry', params: { err: 'INVALID_DATA' }});
+            return;
+        }
         if (this.config.localStorageEnabled === 'true' || this.config.telemetryProxyEnabled === 'true') {
             if (this.config.localStorageEnabled === 'true' && this.config.telemetryProxyEnabled !== 'true') {
                 // Store locally and respond back with proper status code
