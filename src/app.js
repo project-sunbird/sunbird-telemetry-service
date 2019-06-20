@@ -29,9 +29,13 @@ const createAppServer = () => {
 if (process.env.node_env !== 'test') {
   cluster((worker) => {
     const app = createAppServer();
-    return app.listen(port, () => console.log(`telemetry services cluster is running on port ${port} with ${process.pid} pid`));
+    const server = app.listen(port, () => console.log(`telemetry services cluster is running on port ${port} with ${process.pid} pid`));
+    server.keepAliveTimeout = 60000 * 5;
+    return server;
   }, { count: threads });
 } else {
   const app = createAppServer();
-  app.listen(port, () => console.log(`telemetry services is running in test env on port ${port} with ${process.pid} pid`));
+  const server = app.listen(port, () => console.log(`telemetry services is running in test env on port ${port} with ${process.pid} pid`));
+  server.keepAliveTimeout = 60000 * 5;
+  return server;
 }
