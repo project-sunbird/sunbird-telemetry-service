@@ -3,16 +3,16 @@ jobs:
   build:
     docker:
       - image: circleci/node:8.1.4-browsers
-    working_directory: ~/project/src
+    working_directory: ~/project
     steps:
       - checkout
       - run:
           name: run npm install
-          command: npm install
+          command: cd src && npm install
 
       - run:
           name: run test cases
-          command: npm run test
+          command: cd src && npm run test
 
 workflows:
   version: 2.1
