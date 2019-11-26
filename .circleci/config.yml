@@ -1,0 +1,21 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: circleci/node:8.1.4-browsers
+    working_directory: ~/project/src
+    steps:
+      - checkout
+      - run:
+          name: run npm install
+          command: npm install
+
+      - run:
+          name: run test cases
+          command: npm run test
+
+workflows:
+  version: 2.1
+  build_and_test:
+    jobs:
+      - build
