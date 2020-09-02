@@ -2,7 +2,7 @@ const os = require('os');
 
 const envVariables = {
     level: process.env.telemetry_log_level || 'info',
-    localStorageEnabled: process.env.telemetry_local_storage_enabled || 'true',
+    localStorageEnabled: process.env.telemetry_local_storage_enabled || 'false',
     telemetryProxyEnabled: process.env.telemetry_proxy_enabled,
     dispatcher: process.env.telemetry_local_storage_type,
     proxyURL: process.env.telemetry_proxy_url,
@@ -10,6 +10,7 @@ const envVariables = {
     encodingType: process.env.telemetry_encoding_type,
     kafkaHost: process.env.telemetry_kafka_broker_list,
     topic: process.env.telemetry_kafka_topic,
+    compression_type: process.env.telemetry_kafka_compression || 'none',
     filename: process.env.telemetry_file_filename || 'telemetry-%DATE%.log',
     maxSize: process.env.telemetry_file_maxsize || '100m',
     maxFiles: process.env.telemetry_file_maxfiles || '100',
