@@ -2,7 +2,7 @@ const os = require('os');
 
 const envVariables = {
     level: process.env.telemetry_log_level || 'info',
-    localStorageEnabled: process.env.telemetry_local_storage_enabled || 'false',
+    localStorageEnabled: process.env.telemetry_local_storage_enabled || 'true',
     telemetryProxyEnabled: process.env.telemetry_proxy_enabled,
     dispatcher: process.env.telemetry_local_storage_type,
     proxyURL: process.env.telemetry_proxy_url,
