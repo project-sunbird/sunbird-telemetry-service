@@ -5,3 +5,6 @@ coverage
 .audit.json
 telemetry-*.log
 mochawesome-report
+*.log
+.DS_Store
+.idea
