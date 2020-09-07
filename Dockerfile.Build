@@ -1,8 +1,8 @@
-FROM node:14.9-alpine3.12
+FROM node:14.9-buster-slim
 MAINTAINER "Mahesh" "mahesh@ilimi.in"
-RUN apk update \
-    && apk add zip \
-    && mkdir -p /opt/telemetry
+RUN apt-get update
+RUN apt-get install zip -y
+RUN mkdir -p /opt/telemetry
 ADD src /opt/telemetry/
 WORKDIR /opt/telemetry/
 RUN npm install
