@@ -15,7 +15,10 @@
     "express-cluster": "0.0.5",
     "http-errors": "~1.6.2",
     "jade": "~1.11.0",
-    "kafka-node": "~2.6.1",
+    "kafka-node": {
+      "version": "~2.6.1",
+      "no-optional": "true"
+    },  
     "lodash": "^4.17.10",
     "morgan": "~1.9.0",
     "request": "2.87.0",
