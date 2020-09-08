@@ -5,7 +5,8 @@ const winston = require('winston'),
     defaultOptions = {
         kafkaHost: 'localhost:9092',
         maxAsyncRequests: 100,
-        topic: 'local.ingestion'
+        topic: 'local.ingestion',
+        compression_type: 'none'
     }
 
 class KafkaDispatcher extends winston.Transport {
@@ -13,6 +14,13 @@ class KafkaDispatcher extends winston.Transport {
         super();
         this.name = 'kafka';
         this.options = _.assignInWith(defaultOptions, options, (objValue, srcValue) => srcValue ? srcValue : objValue);
+        if (this.options.compression_type == 'snappy') {
+            this.compression_attribute = 2;
+        } else if(this.options.compression_type == 'gzip') {
+            this.compression_attribute = 1;
+        } else {
+            this.compression_attribute = 0;
+        }
         this.client = new kafka.KafkaClient({
             kafkaHost: this.options.kafkaHost,
             maxAsyncRequests: this.options.maxAsyncRequests
@@ -25,7 +33,8 @@ class KafkaDispatcher extends winston.Transport {
         this.producer.send([{
             topic: this.options.topic,
             key: meta.mid,
-            messages: msg
+            messages: msg,
+            attributes: this.compression_attribute
         }], callback);
     }
     health(callback) {

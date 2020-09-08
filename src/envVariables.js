@@ -10,6 +10,7 @@ const envVariables = {
     encodingType: process.env.telemetry_encoding_type,
     kafkaHost: process.env.telemetry_kafka_broker_list,
     topic: process.env.telemetry_kafka_topic,
+    compression_type: process.env.telemetry_kafka_compression || 'none',
     filename: process.env.telemetry_file_filename || 'telemetry-%DATE%.log',
     maxSize: process.env.telemetry_file_maxsize || '100m',
     maxFiles: process.env.telemetry_file_maxfiles || '100',

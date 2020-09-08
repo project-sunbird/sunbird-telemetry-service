@@ -1,11 +1,10 @@
-FROM node:8.11-alpine
+FROM node:14.9-buster-slim
 MAINTAINER "Mahesh" "mahesh@ilimi.in"
-RUN apk update \
-    && apk add unzip \
-    && apk add curl \
-    && adduser -u 1001 -h /home/sunbird/ -D sunbird \
-    && apk add --update ca-certificates  \
-    && apk add --update ca-certificates openssl
+RUN useradd -rm -d /home/sunbird -s /bin/bash -g root -G sudo -u 1001 sunbird
+RUN apt-get update
+RUN apt-get install unzip -y \
+    && apt-get install curl -y \
+    && apt-get install ca-certificates openssl -y
 USER sunbird
 RUN mkdir -p /home/sunbird/telemetry
 WORKDIR /home/sunbird/telemetry
