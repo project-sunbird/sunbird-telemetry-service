@@ -8,3 +8,5 @@ WORKDIR /opt/telemetry/
 RUN npm install
 WORKDIR /opt
 CMD ["zip", "-r", "telemetry-service.zip", "telemetry"]
+WORKDIR /opt/telemetry/
+CMD ["node", "app.js", "&"]
