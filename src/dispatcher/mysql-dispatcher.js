@@ -41,7 +41,6 @@ class MysqlDispatcher extends winston.Transport {
             // for run table creation query
             this.connection.query(sql,[table_name], function (err, result) {
                 if (err) throw console.log("error while creating db");
-                console.log(result.message);
                 console.log("Telemetry table created");
             });
         }
@@ -71,7 +70,6 @@ class MysqlDispatcher extends winston.Transport {
 
         Promise.all(promises)
             .then(() => {
-                console.log("data inserted successfully!");
                 callback()
             }).catch((err) => {
                 console.log("Unable to insert data", err);

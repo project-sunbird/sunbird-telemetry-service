@@ -29,7 +29,6 @@ class Dispatcher {
             this.logger.add(winston.transports.Cassandra, this.options);
             console.log('Cassandra transport enabled !!!');
         } else if (this.options.dispatcher === 'mysql') {
-            console.log("inside mysql")
             this.logger.add(winston.transports.mysql, this.options);
             console.log('mysql transport enabled !!!');
         } else { // Log to console
