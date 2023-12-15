@@ -2,6 +2,7 @@ const winston = require('winston');
     require('winston-daily-rotate-file');
     require('./kafka-dispatcher');
     require('./cassandra-dispatcher');
+    require('./mysql-dispatcher');
 
 const defaultFileOptions = {
     filename: 'dispatcher-%DATE%.log',
@@ -27,6 +28,9 @@ class Dispatcher {
         } else if (this.options.dispatcher === 'cassandra') {
             this.logger.add(winston.transports.Cassandra, this.options);
             console.log('Cassandra transport enabled !!!');
+        } else if (this.options.dispatcher === 'mysql') {
+            this.logger.add(winston.transports.mysql, this.options);
+            console.log('mysql transport enabled !!!');
         } else { // Log to console
             this.options.dispatcher = 'console'
             const config = Object.assign({json: true,stringify: (obj) => JSON.stringify(obj)}, this.options);

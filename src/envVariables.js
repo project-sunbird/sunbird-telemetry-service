@@ -19,6 +19,12 @@ const envVariables = {
     contactPoints: (process.env.telemetry_cassandra_contactpoints || 'localhost').split(','),
     cassandraTtl: process.env.telemetry_cassandra_ttl,
     port: process.env.telemetry_service_port || 9001,
-    threads: process.env.telemetry_service_threads || os.cpus().length
+    threads: process.env.telemetry_service_threads || os.cpus().length,
+    table: process.env.telemetry_table_name || "telemetry",
+    mysqlHost: process.env.MYSQL_HOST,
+    mysqlUser: process.env.MYSQL_USER,
+    mysqlPort: process.env.MYSQL_PORT,
+    mysqlDatabase: process.env.MYSQL_DATABASE,
+    mysqlPassword: process.env.MYSQL_PASSWORD,
 }
 module.exports = envVariables;
