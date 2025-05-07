@@ -14,8 +14,7 @@
     "express": "~4.16.0",
     "express-cluster": "0.0.5",
     "http-errors": "~1.6.2",
-    "jade": "~1.11.0",
-    "kafka-node": "~2.6.1",
+    "kafka-node": "^5.0.0",
     "lodash": "^4.17.10",
     "morgan": "~1.9.0",
     "request": "2.87.0",
@@ -26,11 +25,11 @@
   },
   "devDependencies": {
     "chai": "^4.1.2",
+    "chai-http": "^4.0.0",
+    "codacy-coverage": "3.0.0",
     "mocha": "^5.2.0",
     "mochawesome": "^3.0.3",
     "nyc": "^12.0.2",
-    "sinon": "^6.1.5",
-    "chai-http": "^4.0.0",
-    "codacy-coverage": "3.0.0"
+    "sinon": "^6.1.5"
   }
 }
