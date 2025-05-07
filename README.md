@@ -6,6 +6,8 @@ The code in this repository is licensed under MIT License unless otherwise noted
 
 ## Development Setup
 
+Repository: https://github.com/project-sunbird/sunbird-telemetry-service.git
+
 ### Prerequisites
 - Node.js v22.15
 - Kafka 
