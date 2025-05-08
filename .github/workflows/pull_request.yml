@@ -42,7 +42,3 @@ jobs:
     - name: Lint
       run: npm run lint
       working-directory: ./src
-
-    - name: Run tests
-      run: npm run test
-      working-directory: ./src

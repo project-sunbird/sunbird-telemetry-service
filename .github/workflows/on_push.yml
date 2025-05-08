@@ -37,6 +37,13 @@ jobs:
           echo "IMAGE_NAME=ghcr.io/${REPO_NAME_LOWERCASE}" >> $GITHUB_ENV
           echo "IMAGE_TAG=${BUILD_TAG}" >> $GITHUB_ENV
 
+      - name: Build ZIP file with Dockerfile.Build
+        run: |
+          docker build -t telemetry-build -f Dockerfile.Build .       
+          docker run --name telemetry-builder telemetry-build        
+          docker cp telemetry-builder:/opt/telemetry-service.zip ./    
+          docker rm telemetry-builder
+
       - name: Build Docker image
         run: docker build -t $IMAGE_NAME:$IMAGE_TAG .
 
