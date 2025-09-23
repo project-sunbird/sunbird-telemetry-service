@@ -1,7 +1,13 @@
 FROM node:22.15-slim
 MAINTAINER "Mahesh" "mahesh@ilimi.in"
-RUN apt-get update
-RUN apt-get install zip -y
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    libsnappy-dev \
+    libsnappy1v5 \
+    zip \
+ && rm -rf /var/lib/apt/lists/*
 RUN mkdir -p /opt/telemetry
 ADD src /opt/telemetry/
 WORKDIR /opt/telemetry/
