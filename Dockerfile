@@ -11,4 +11,4 @@ COPY ./telemetry-service.zip /home/sunbird/telemetry/
 RUN unzip /home/sunbird/telemetry/telemetry-service.zip
 RUN ls -all /home/sunbird/telemetry
 WORKDIR /home/sunbird/telemetry/telemetry/
-CMD ["node", "app.js"]
+CMD ["node", "app.js", "&"]
