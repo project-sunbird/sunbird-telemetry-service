@@ -5,7 +5,9 @@
   "author": "sunbird",
   "scripts": {
     "test": "nyc --reporter=html --reporter=text --reporter=lcov ./node_modules/mocha/bin/mocha 'test/**/*.js'  --reporter mochawesome --exit",
-    "test-with-coverage": "nyc --reporter=html --reporter=text --reporter=lcov ./node_modules/mocha/bin/mocha 'test/**/*.js'  --reporter mochawesome --exit && cat ./coverage/lcov.info | codacy-coverage"
+    "test-with-coverage": "nyc --reporter=html --reporter=text --reporter=lcov ./node_modules/mocha/bin/mocha 'test/**/*.js'  --reporter mochawesome --exit && cat ./coverage/lcov.info | codacy-coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "body-parser": "~1.18.3",
@@ -27,6 +29,7 @@
     "chai": "^4.1.2",
     "chai-http": "^4.0.0",
     "codacy-coverage": "3.0.0",
+    "eslint": "^8.57.1",
     "mocha": "^5.2.0",
     "mochawesome": "^3.0.3",
     "nyc": "^12.0.2",
