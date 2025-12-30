@@ -31,7 +31,7 @@
     "codacy-coverage": "3.0.0",
     "eslint": "^8.57.1",
     "mocha": "^5.2.0",
-    "mochawesome": "^3.0.3",
+    "mochawesome": "^7.1.4",
     "nyc": "^12.0.2",
     "sinon": "^6.1.5"
   }
