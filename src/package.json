@@ -16,7 +16,7 @@
     "express": "~4.16.0",
     "express-cluster": "0.0.5",
     "http-errors": "~1.6.2",
-    "kafka-node": "^5.0.0",
+    "kafkajs": "^2.2.4",
     "lodash": "^4.17.10",
     "morgan": "~1.9.0",
     "request": "2.87.0",
