@@ -1,13 +1,19 @@
 const winston = require('winston'),
-  kafka = require('kafka-node'),
   _ = require('lodash'),
-  HighLevelProducer = kafka.HighLevelProducer,
+  { Kafka, CompressionTypes } = require('kafkajs'),
   defaultOptions = {
     kafkaHost: 'localhost:9092',
     maxAsyncRequests: 100,
     topic: 'local.ingestion',
     compression_type: 'none'
   };
+
+function mapCompressionAttr(attr) {
+  // kafka-node used numeric attributes: 0 = none, 1 = gzip, 2 = snappy
+  if (attr === 2) return CompressionTypes.Snappy;
+  if (attr === 1) return CompressionTypes.GZIP;
+  return CompressionTypes.None;
+}
 
 class KafkaDispatcher extends winston.Transport {
   constructor(options) {
@@ -21,22 +27,71 @@ class KafkaDispatcher extends winston.Transport {
     } else {
       this.compression_attribute = 0;
     }
-    this.client = new kafka.KafkaClient({
-      kafkaHost: this.options.kafkaHost,
-      maxAsyncRequests: this.options.maxAsyncRequests
-    });
-    this.producer = new HighLevelProducer(this.client);
-    this.producer.on('ready', () => console.log('kafka dispatcher is ready'));
-    this.producer.on('error', (err) => console.error('Unable to connect to kafka', err));
+
+    // kafkajs expects an array of broker strings
+    const brokers = (typeof this.options.kafkaHost === 'string') ? [this.options.kafkaHost] : this.options.kafkaHost;
+    this._kafka = new Kafka({ brokers });
+    this._producer = this._kafka.producer();
+    this._admin = this._kafka.admin();
+
+    // Backwards-compatible lightweight wrappers so existing code/tests that
+    // expect producer.send(payloads, cb) and client.topicExists(topic, cb)
+    // continue to work.
+    this.producer = {
+      send: (payloads, cb) => {
+        // payloads is an array like [{ topic, key, messages, attributes, partition }]
+        const topicMessages = payloads.map(p => {
+          const msg = { key: p.key, value: p.messages };
+          if (p.hasOwnProperty('partition')) msg.partition = p.partition;
+          return {
+            topic: p.topic,
+            messages: [msg],
+            compression: mapCompressionAttr(p.attributes)
+          };
+        });
+
+        // connect producer, send batch, then call callback
+        this._producer.connect()
+          .then(() => this._producer.sendBatch({ topicMessages }))
+          .then(() => { if (cb) cb(); })
+          .catch(err => { if (cb) cb(err); });
+      }
+    };
+
+    this.client = {
+      topicExists: (topic, cb) => {
+        // kafkajs admin.fetchTopicMetadata throws if topic doesn't exist
+        this._admin.connect()
+          .then(() => this._admin.fetchTopicMetadata({ topics: [topic] }))
+          .then(() => this._admin.disconnect())
+          .then(() => cb && cb(null))
+          .catch(err => {
+            // ensure disconnect
+            this._admin.disconnect().catch(() => {});
+            cb && cb(err);
+          });
+      }
+    };
+
+    // log basic connection info asynchronously
+    this._producer.connect()
+      .then(() => console.log('kafka dispatcher producer connected'))
+      .catch(err => console.error('Unable to connect kafka producer', err));
+    this._admin.connect()
+      .then(() => this._admin.disconnect())
+      .catch(() => {});
   }
+
   log(level, msg, meta, callback) {
+    // preserve the older kafka-node send signature by delegating to the wrapper
     this.producer.send([{
       topic: this.options.topic,
-      key: meta.mid,
+      key: meta && meta.mid,
       messages: msg,
       attributes: this.compression_attribute
     }], callback);
   }
+
   health(callback) {
     this.client.topicExists(this.options.topic, (err) => {
       if (err) callback(false);
