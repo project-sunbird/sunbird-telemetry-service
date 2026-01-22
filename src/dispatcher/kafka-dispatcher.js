@@ -1,6 +1,7 @@
 const winston = require('winston'),
   _ = require('lodash'),
   { Kafka, CompressionTypes } = require('kafkajs'),
+  config = require('../envVariables'),
   defaultOptions = {
     kafkaHost: 'localhost:9092',
     maxAsyncRequests: 100,
@@ -84,10 +85,27 @@ class KafkaDispatcher extends winston.Transport {
 
   log(level, msg, meta, callback) {
     // preserve the older kafka-node send signature by delegating to the wrapper
+    // msg is expected to be a JSON string. Inject a top-level dataset key
+    // from configuration if provided and not already present.
+    let outgoing = msg;
+    try {
+      if (typeof msg === 'string') {
+        const parsed = JSON.parse(msg);
+        if (parsed && typeof parsed === 'object') {
+          if (config.dataset && !parsed.hasOwnProperty('dataset')) {
+            parsed.dataset = config.dataset;
+          }
+          outgoing = JSON.stringify(parsed);
+        }
+      }
+    } catch (e) {
+      // if parsing fails, leave the message as-is
+    }
+
     this.producer.send([{
       topic: this.options.topic,
       key: meta && meta.mid,
-      messages: msg,
+      messages: outgoing,
       attributes: this.compression_attribute
     }], callback);
   }

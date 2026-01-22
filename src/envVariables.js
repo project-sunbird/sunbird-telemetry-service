@@ -19,6 +19,8 @@ const envVariables = {
   contactPoints: (process.env.telemetry_cassandra_contactpoints || 'localhost').split(','),
   cassandraTtl: process.env.telemetry_cassandra_ttl,
   port: process.env.telemetry_service_port || 9001,
-  threads: process.env.telemetry_service_threads || os.cpus().length
+  threads: process.env.telemetry_service_threads || os.cpus().length,
+  // dataset to be injected into outgoing telemetry events
+  dataset: process.env.telemetry_dataset || 'sb-telemetry'
 };
 module.exports = envVariables;
