@@ -17,6 +17,7 @@ class TelemetryService {
     message.channel = req.get('x-channel-id');
     message.pid = req.get('x-app-id');
     if (!message.mid) message.mid = uuidv1();
+    message.id = message.mid;
     message.syncts = new Date().getTime();
     const data = JSON.stringify(message);
     if (this.config.localStorageEnabled === 'true' || this.config.telemetryProxyEnabled === 'true') {
