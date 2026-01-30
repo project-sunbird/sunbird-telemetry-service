@@ -36,8 +36,9 @@ npm ci
 
 ### Running the Service
 ```bash
-npm run start
+node app.js
 ```
+Note: The `package.json` does not define a `start` script. Run the application directly with Node.js.
 
 ### Working Directory
 Always run npm commands from the `src/` directory, as that's where `package.json` is located.
