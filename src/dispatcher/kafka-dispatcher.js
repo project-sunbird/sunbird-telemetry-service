@@ -21,9 +21,9 @@ class KafkaDispatcher extends Transport {
     super(options);
     this.name = 'kafka';
     this.options = _.assignInWith(defaultOptions, options, (objValue, srcValue) => srcValue ? srcValue : objValue);
-    if (this.options.compression_type == 'snappy') {
+    if (this.options.compression_type === 'snappy') {
       this.compression_attribute = 2;
-    } else if(this.options.compression_type == 'gzip') {
+    } else if(this.options.compression_type === 'gzip') {
       this.compression_attribute = 1;
     } else {
       this.compression_attribute = 0;

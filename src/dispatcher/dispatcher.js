@@ -15,11 +15,11 @@ class Dispatcher {
     this.options = options;
     this.transport = null;
     
-    if (this.options.dispatcher == 'kafka') {
+    if (this.options.dispatcher === 'kafka') {
       const { KafkaDispatcher } = require('./kafka-dispatcher');
       this.transport = new KafkaDispatcher(this.options);
       console.log('Kafka transport enabled !!!');
-    } else if (this.options.dispatcher == 'file') {
+    } else if (this.options.dispatcher === 'file') {
       require('winston-daily-rotate-file');
       const config = Object.assign(defaultFileOptions, this.options);
       this.transport = new winston.transports.DailyRotateFile(config);
@@ -42,11 +42,12 @@ class Dispatcher {
   }
 
   dispatch(mid, message, callback) {
-    // Winston 3.x doesn't support callbacks on log methods
-    // Instead, we need to listen for the 'finish' event if we want to know when logging is done
+    // Winston 3.x doesn't support callbacks on logger.log methods
+    // The callback is invoked immediately for backward compatibility with existing code
+    // If you need to wait for the log to be written, listen to the logger's 'finish' event instead
     this.logger.log('info', message, {mid: mid});
     if (callback) {
-      // Call callback immediately since Winston 3.x doesn't support log callbacks
+      // Call callback immediately to maintain backward compatibility
       setImmediate(callback);
     }
   }
