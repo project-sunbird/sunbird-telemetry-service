@@ -51,7 +51,10 @@ describe('telemetry Service', () => {
     process.env.telemetry_log_level = 'info';
     process.env.telemetry_local_storage_type = 'kafka';
     telemetryService = require(telemetryServicePath);
-    expect(telemetryService.dispatcher.logger.transports).to.have.property('kafka');
+    // Winston 3.x stores transports in an array
+    expect(telemetryService.dispatcher.logger.transports).to.be.an('array');
+    expect(telemetryService.dispatcher.logger.transports).to.have.lengthOf(1);
+    expect(telemetryService.dispatcher.logger.transports[0]).to.have.property('name', 'kafka');
   });
 
   it('should return telemetryService with console dispatcher if "telemetry_local_storage_type" is "undefined" or other than "kafka/file/cassandra"', function () {
@@ -60,7 +63,10 @@ describe('telemetry Service', () => {
     process.env.telemetry_log_level = 'info';
     process.env.telemetry_local_storage_type = undefined;
     telemetryService = require(telemetryServicePath);
-    expect(telemetryService.dispatcher.logger.transports).to.have.property('console');
+    // Winston 3.x stores transports in an array
+    expect(telemetryService.dispatcher.logger.transports).to.be.an('array');
+    expect(telemetryService.dispatcher.logger.transports).to.have.lengthOf(1);
+    expect(telemetryService.dispatcher.logger.transports[0]).to.have.property('name', 'console');
   });
 
   it('should send success if health method is called, if configured dispatcher is health and (localStorageEnabled is true)  and (telemetryProxyEnabled is true/false)', function () {
