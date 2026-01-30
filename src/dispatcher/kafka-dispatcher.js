@@ -34,6 +34,7 @@ class KafkaDispatcher extends winston.Transport {
     this._kafka = new Kafka({ brokers });
     this._producer = this._kafka.producer();
     this._admin = this._kafka.admin();
+    this._producerConnected = false;
 
     // Backwards-compatible lightweight wrappers so existing code/tests that
     // expect producer.send(payloads, cb) and client.topicExists(topic, cb)
@@ -51,8 +52,12 @@ class KafkaDispatcher extends winston.Transport {
           };
         });
 
-        // connect producer, send batch, then call callback
-        this._producer.connect()
+        // ensure producer is connected, then send batch
+        const sendPromise = this._producerConnected 
+          ? Promise.resolve()
+          : this._producer.connect().then(() => { this._producerConnected = true; });
+
+        sendPromise
           .then(() => this._producer.sendBatch({ topicMessages }))
           .then(() => { if (cb) cb(); })
           .catch(err => { if (cb) cb(err); });
@@ -76,7 +81,10 @@ class KafkaDispatcher extends winston.Transport {
 
     // log basic connection info asynchronously
     this._producer.connect()
-      .then(() => console.log('kafka dispatcher producer connected'))
+      .then(() => {
+        this._producerConnected = true;
+        console.log('kafka dispatcher producer connected');
+      })
       .catch(err => console.error('Unable to connect kafka producer', err));
     this._admin.connect()
       .then(() => this._admin.disconnect())
