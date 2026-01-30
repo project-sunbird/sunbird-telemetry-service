@@ -53,16 +53,19 @@ describe('dispatcher Service', () => {
     config.dispatcher = 'kafka';
     cb = () => {};
     const dispatcher = new Dispatcher(config);
-    sinon.spy(dispatcher.logger, 'log');
+    // Spy on transport.log instead of logger.log since we now call it directly
+    sinon.spy(dispatcher.transport, 'log');
     dispatcher.dispatch('mid', {}, cb);
     // Winston 3.x stores transports in an array
     expect(dispatcher.logger.transports).to.be.an('array');
     expect(dispatcher.logger.transports).to.have.lengthOf(1);
-    sinon.assert.calledOnce(dispatcher.logger.log);
-    // Winston 3.x doesn't support callbacks on log methods
-    sinon.assert.calledWith(dispatcher.logger.log, 'info', {}, {
-      mid: 'mid'
-    });
+    sinon.assert.calledOnce(dispatcher.transport.log);
+    // Verify the info object structure
+    const callArgs = dispatcher.transport.log.getCall(0).args;
+    expect(callArgs[0]).to.have.property('level', 'info');
+    expect(callArgs[0]).to.have.property('message');
+    expect(callArgs[0]).to.have.property('mid', 'mid');
+    expect(callArgs[1]).to.be.a('function'); // callback
   });
 
   it('should check health of kafka if config.dispatcher is passed as "kafka" and health is called', function () {
@@ -94,16 +97,19 @@ describe('dispatcher Service', () => {
     config.dispatcher = 'console';
     const dispatcher = new Dispatcher(config);
     cb = () => {};
-    sinon.spy(dispatcher.logger, 'log');
+    // Spy on transport.log instead of logger.log since we now call it directly
+    sinon.spy(dispatcher.transport, 'log');
     dispatcher.dispatch('mid', {}, cb);
     // Winston 3.x stores transports in an array
     expect(dispatcher.logger.transports).to.be.an('array');
     expect(dispatcher.logger.transports).to.have.lengthOf(1);
-    sinon.assert.calledOnce(dispatcher.logger.log);
-    // Winston 3.x doesn't support callbacks on log methods
-    sinon.assert.calledWith(dispatcher.logger.log, 'info', {}, {
-      mid: 'mid'
-    });
+    sinon.assert.calledOnce(dispatcher.transport.log);
+    // Verify the info object structure
+    const callArgs = dispatcher.transport.log.getCall(0).args;
+    expect(callArgs[0]).to.have.property('level', 'info');
+    expect(callArgs[0]).to.have.property('message');
+    expect(callArgs[0]).to.have.property('mid', 'mid');
+    expect(callArgs[1]).to.be.a('function'); // callback
   });
 
   it('should check health of dispatcher if config.dispatcher is passed as "console" or  other than "kafka/file/cassandra" and callback should be called with true', function () {
@@ -117,6 +123,39 @@ describe('dispatcher Service', () => {
     expect(dispatcher.logger.transports).to.have.lengthOf(1);
     sinon.assert.calledOnce(stub.cb);
     sinon.assert.calledWith(stub.cb, true);
+  });
+
+  it('should invoke callback after log completes successfully', function (done) {
+    config.dispatcher = 'kafka';
+    const dispatcher = new Dispatcher(config);
+    // Stub the transport's log to simulate successful logging
+    sinon.stub(dispatcher.transport, 'log').callsFake((info, callback) => {
+      // Simulate async logging
+      setImmediate(() => callback(null));
+    });
+    
+    dispatcher.dispatch('mid', {}, (err) => {
+      expect(err).to.be.null;
+      sinon.assert.calledOnce(dispatcher.transport.log);
+      done();
+    });
+  });
+
+  it('should invoke callback with error when log fails', function (done) {
+    config.dispatcher = 'kafka';
+    const dispatcher = new Dispatcher(config);
+    const testError = new Error('Log failed');
+    // Stub the transport's log to simulate logging failure
+    sinon.stub(dispatcher.transport, 'log').callsFake((info, callback) => {
+      // Simulate async logging failure
+      setImmediate(() => callback(testError));
+    });
+    
+    dispatcher.dispatch('mid', {}, (err) => {
+      expect(err).to.equal(testError);
+      sinon.assert.calledOnce(dispatcher.transport.log);
+      done();
+    });
   });
 
   it('should check health of dispatcher if config.dispatcher is passed as "file/cassandra" and callback should be called with false', function () {

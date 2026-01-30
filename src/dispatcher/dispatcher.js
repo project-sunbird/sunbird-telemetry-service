@@ -42,14 +42,20 @@ class Dispatcher {
   }
 
   dispatch(mid, message, callback) {
-    // Winston 3.x doesn't support callbacks on logger.log methods
-    // The callback is invoked immediately for backward compatibility with existing code
-    // If you need to wait for the log to be written, listen to the logger's 'finish' event instead
-    this.logger.log('info', message, {mid: mid});
-    if (callback) {
-      // Call callback immediately to maintain backward compatibility
-      setImmediate(callback);
-    }
+    // Winston 3.x logger.log doesn't support callbacks, but individual transports do
+    // We call the transport's log method directly to get proper callback support
+    const info = {
+      level: 'info',
+      message: message,
+      mid: mid
+    };
+    
+    // Call the transport's log method directly with callback
+    this.transport.log(info, (err) => {
+      if (callback) {
+        callback(err);
+      }
+    });
   }
 
   health(callback) {
