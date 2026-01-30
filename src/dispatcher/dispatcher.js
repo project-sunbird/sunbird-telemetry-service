@@ -1,7 +1,4 @@
 const winston = require('winston');
-require('winston-daily-rotate-file');
-require('./kafka-dispatcher');
-require('./cassandra-dispatcher');
 
 const defaultFileOptions = {
   filename: 'dispatcher-%DATE%.log',
@@ -18,19 +15,22 @@ class Dispatcher {
     this.logger = new(winston.Logger)({level: 'info'});
     this.options = options;
     if (this.options.dispatcher == 'kafka') {
-      this.logger.add(winston.transports.Kafka, this.options);
+      require('./kafka-dispatcher');
+      this.logger.add(new winston.transports.Kafka(this.options));
       console.log('Kafka transport enabled !!!');
     } else if (this.options.dispatcher == 'file') {
+      require('winston-daily-rotate-file');
       const config = Object.assign(defaultFileOptions, this.options);
-      this.logger.add(winston.transports.DailyRotateFile, config);
+      this.logger.add(new winston.transports.DailyRotateFile(config));
       console.log('File transport enabled !!!');
     } else if (this.options.dispatcher === 'cassandra') {
-      this.logger.add(winston.transports.Cassandra, this.options);
+      require('./cassandra-dispatcher');
+      this.logger.add(new winston.transports.Cassandra(this.options));
       console.log('Cassandra transport enabled !!!');
     } else { // Log to console
       this.options.dispatcher = 'console';
       const config = Object.assign({json: true,stringify: (obj) => JSON.stringify(obj)}, this.options);
-      this.logger.add(winston.transports.Console, config);
+      this.logger.add(new winston.transports.Console(config));
       console.log('Console transport enabled !!!');
     }
   }

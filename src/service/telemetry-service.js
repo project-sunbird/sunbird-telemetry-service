@@ -1,4 +1,4 @@
-const uuidv1 = require('uuid/v1'),
+const { v1: uuidv1 } = require('uuid'),
   request = require('request'),
   DispatcherClass = require('../dispatcher/dispatcher').Dispatcher,
   config = require('../envVariables');
