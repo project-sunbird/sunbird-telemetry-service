@@ -12,36 +12,43 @@ const defaultFileOptions = {
 class Dispatcher {
   constructor(options) {
     if (!options) throw new Error('Dispatcher options are required');
-    this.logger = new(winston.Logger)({level: 'info'});
     this.options = options;
     this.transport = null;
+    
     if (this.options.dispatcher == 'kafka') {
-      require('./kafka-dispatcher');
-      this.transport = new winston.transports.Kafka(this.options);
-      this.logger.add(this.transport);
+      const { KafkaDispatcher } = require('./kafka-dispatcher');
+      this.transport = new KafkaDispatcher(this.options);
       console.log('Kafka transport enabled !!!');
     } else if (this.options.dispatcher == 'file') {
       require('winston-daily-rotate-file');
       const config = Object.assign(defaultFileOptions, this.options);
       this.transport = new winston.transports.DailyRotateFile(config);
-      this.logger.add(this.transport);
       console.log('File transport enabled !!!');
     } else if (this.options.dispatcher === 'cassandra') {
       require('./cassandra-dispatcher');
       this.transport = new winston.transports.Cassandra(this.options);
-      this.logger.add(this.transport);
       console.log('Cassandra transport enabled !!!');
     } else { // Log to console
       this.options.dispatcher = 'console';
       const config = Object.assign({json: true,stringify: (obj) => JSON.stringify(obj)}, this.options);
       this.transport = new winston.transports.Console(config);
-      this.logger.add(this.transport);
       console.log('Console transport enabled !!!');
     }
+    
+    this.logger = winston.createLogger({
+      level: 'info',
+      transports: [this.transport]
+    });
   }
 
   dispatch(mid, message, callback) {
-    this.logger.log('info', message, {mid: mid}, callback);
+    // Winston 3.x doesn't support callbacks on log methods
+    // Instead, we need to listen for the 'finish' event if we want to know when logging is done
+    this.logger.log('info', message, {mid: mid});
+    if (callback) {
+      // Call callback immediately since Winston 3.x doesn't support log callbacks
+      setImmediate(callback);
+    }
   }
 
   health(callback) {

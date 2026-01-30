@@ -1,4 +1,4 @@
-const winston = require('winston'),
+const Transport = require('winston-transport'),
   _ = require('lodash'),
   { Kafka, CompressionTypes } = require('kafkajs'),
   config = require('../envVariables'),
@@ -16,9 +16,9 @@ function mapCompressionAttr(attr) {
   return CompressionTypes.None;
 }
 
-class KafkaDispatcher extends winston.Transport {
+class KafkaDispatcher extends Transport {
   constructor(options) {
-    super();
+    super(options);
     this.name = 'kafka';
     this.options = _.assignInWith(defaultOptions, options, (objValue, srcValue) => srcValue ? srcValue : objValue);
     if (this.options.compression_type == 'snappy') {
@@ -91,10 +91,12 @@ class KafkaDispatcher extends winston.Transport {
       .catch(() => {});
   }
 
-  log(level, msg, meta, callback) {
-    // preserve the older kafka-node send signature by delegating to the wrapper
-    // msg is expected to be a JSON string. Inject a top-level dataset key
+  log(info, callback) {
+    // Modern winston 3.x transport signature: log(info, callback)
+    // info contains: level, message, and other metadata
+    // msg/message is expected to be a JSON string. Inject a top-level dataset key
     // from configuration if provided and not already present.
+    const msg = info.message;
     let outgoing = msg;
     try {
       if (typeof msg === 'string') {
@@ -112,7 +114,7 @@ class KafkaDispatcher extends winston.Transport {
 
     this.producer.send([{
       topic: this.options.topic,
-      key: meta && meta.mid,
+      key: info.mid,
       messages: outgoing,
       attributes: this.compression_attribute
     }], callback);
@@ -125,7 +127,5 @@ class KafkaDispatcher extends winston.Transport {
     });
   }
 }
-
-winston.transports.Kafka = KafkaDispatcher;
 
 module.exports = { KafkaDispatcher };

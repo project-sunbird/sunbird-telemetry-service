@@ -37,13 +37,16 @@ describe('dispatcher Service', () => {
     config.dispatcher = 'kafka';
     const dispatcher = new Dispatcher(config);
     expect(dispatcher.logger).to.have.property('log');
-    expect(dispatcher.logger.transports).to.have.property('kafka');
-    expect(dispatcher.logger.transports.kafka).to.be.an('object');
-    expect(dispatcher.logger.transports.kafka).to.have.property('options');
-    expect(dispatcher.logger.transports.kafka.options.topic).to.equal('local.ingestion');
-    expect(dispatcher.logger.transports.kafka.options.level).to.equal('info');
-    expect(dispatcher.logger.transports.kafka.options.dispatcher).to.equal('kafka');
-    expect(dispatcher.logger.transports.kafka.options.kafkaHost).to.equal('localhost:9092');
+    // Winston 3.x stores transports in an array
+    expect(dispatcher.logger.transports).to.be.an('array');
+    expect(dispatcher.logger.transports).to.have.lengthOf(1);
+    const kafkaTransport = dispatcher.logger.transports[0];
+    expect(kafkaTransport).to.be.an('object');
+    expect(kafkaTransport).to.have.property('options');
+    expect(kafkaTransport.options.topic).to.equal('local.ingestion');
+    expect(kafkaTransport.options.level).to.equal('info');
+    expect(kafkaTransport.options.dispatcher).to.equal('kafka');
+    expect(kafkaTransport.options.kafkaHost).to.equal('localhost:9092');
   });
 
   it('should log to kafka if config.dispatcher is passed as "kafka" and dispatch is called', function () {
@@ -52,11 +55,14 @@ describe('dispatcher Service', () => {
     const dispatcher = new Dispatcher(config);
     sinon.spy(dispatcher.logger, 'log');
     dispatcher.dispatch('mid', {}, cb);
-    expect(dispatcher.logger.transports).to.have.property('kafka');
+    // Winston 3.x stores transports in an array
+    expect(dispatcher.logger.transports).to.be.an('array');
+    expect(dispatcher.logger.transports).to.have.lengthOf(1);
     sinon.assert.calledOnce(dispatcher.logger.log);
+    // Winston 3.x doesn't support callbacks on log methods
     sinon.assert.calledWith(dispatcher.logger.log, 'info', {}, {
       mid: 'mid'
-    }, cb);
+    });
   });
 
   it('should check health of kafka if config.dispatcher is passed as "kafka" and health is called', function () {
@@ -64,19 +70,24 @@ describe('dispatcher Service', () => {
     const stub = { cb: () => {}} ;
     sinon.spy(stub , 'cb');
     const dispatcher = new Dispatcher(config);
-    sinon.spy(dispatcher.logger.transports.kafka, 'health');
+    // Winston 3.x stores transports in an array, use the transport reference we already have
+    sinon.spy(dispatcher.transport, 'health');
     dispatcher.health(stub.cb);
-    expect(dispatcher.logger.transports).to.have.property('kafka');
-    sinon.assert.calledOnce(dispatcher.logger.transports.kafka.health);
-    sinon.assert.calledWith(dispatcher.logger.transports.kafka.health, stub.cb);
+    // Winston 3.x stores transports in an array
+    expect(dispatcher.logger.transports).to.be.an('array');
+    expect(dispatcher.logger.transports).to.have.lengthOf(1);
+    sinon.assert.calledOnce(dispatcher.transport.health);
+    sinon.assert.calledWith(dispatcher.transport.health, stub.cb);
   });
 
   it('should create kafka dispatcher if config.dispatcher is not passed or other than "kafka/file/cassandra"', function () {
     config.dispatcher = 'console';
     const dispatcher = new Dispatcher(config);
-    expect(dispatcher.logger.transports).to.have.property('console');
+    // Winston 3.x stores transports in an array
+    expect(dispatcher.logger.transports).to.be.an('array');
+    expect(dispatcher.logger.transports).to.have.lengthOf(1);
     expect(dispatcher.logger).to.have.property('log');
-    expect(dispatcher.logger.transports.console).to.be.an('object');
+    expect(dispatcher.logger.transports[0]).to.be.an('object');
   });
 
   it('should log to console if config.dispatcher is passed as is not passed or other than "kafka/file/cassandra" and dispatch is called', function () {
@@ -85,11 +96,14 @@ describe('dispatcher Service', () => {
     cb = () => {};
     sinon.spy(dispatcher.logger, 'log');
     dispatcher.dispatch('mid', {}, cb);
-    expect(dispatcher.logger.transports).to.have.property('console');
+    // Winston 3.x stores transports in an array
+    expect(dispatcher.logger.transports).to.be.an('array');
+    expect(dispatcher.logger.transports).to.have.lengthOf(1);
     sinon.assert.calledOnce(dispatcher.logger.log);
+    // Winston 3.x doesn't support callbacks on log methods
     sinon.assert.calledWith(dispatcher.logger.log, 'info', {}, {
       mid: 'mid'
-    }, cb);
+    });
   });
 
   it('should check health of dispatcher if config.dispatcher is passed as "console" or  other than "kafka/file/cassandra" and callback should be called with true', function () {
@@ -98,7 +112,9 @@ describe('dispatcher Service', () => {
     const dispatcher = new Dispatcher(config);
     sinon.spy(stub , 'cb');
     dispatcher.health(stub.cb);
-    expect(dispatcher.logger.transports).to.have.property('console');
+    // Winston 3.x stores transports in an array
+    expect(dispatcher.logger.transports).to.be.an('array');
+    expect(dispatcher.logger.transports).to.have.lengthOf(1);
     sinon.assert.calledOnce(stub.cb);
     sinon.assert.calledWith(stub.cb, true);
   });

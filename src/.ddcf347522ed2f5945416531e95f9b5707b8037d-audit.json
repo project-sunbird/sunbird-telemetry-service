@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": false,
+        "amount": 100
+    },
+    "auditLog": ".ddcf347522ed2f5945416531e95f9b5707b8037d-audit.json",
+    "files": [
+        {
+            "date": 1769771903801,
+            "name": "telemetry-2026-01-30.log",
+            "hash": "eafcaa23ed21ef520f66216bcc0787f6a72e0f00cc003f60c1220c26bb5879b7"
+        }
+    ],
+    "hashType": "sha256"
+}
