@@ -13,6 +13,9 @@ const createAppServer = () => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,PATCH,DELETE,OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization,' + 'cid, user-id, x-auth, Cache-Control, X-Requested-With, datatype, *');
+    if (envVariables.enableHSTS !== false) {
+      res.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    }
     if (req.method === 'OPTIONS') res.sendStatus(200);
     else next();
   });
