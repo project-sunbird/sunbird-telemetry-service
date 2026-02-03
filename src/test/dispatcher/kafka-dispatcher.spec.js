@@ -26,13 +26,15 @@ describe('kafka-dispatcher Service', () => {
     const dispatcher = new KafkaDispatcher(config);
     cb = () => {};
     sinon.spy(dispatcher.producer, 'send');
-    dispatcher.log('level', 'msg', {
+    // Winston 3.x uses log(info, callback) signature
+    dispatcher.log({
+      level: 'info',
+      message: 'msg',
       mid: '54335'
     }, cb);
     sinon.assert.calledOnce(dispatcher.producer.send);
     sinon.assert.calledWith(dispatcher.producer.send, [{
       attributes: 0,
-      partition: 0,
       topic: 'local.ingestion',
       key: '54335',
       messages: 'msg'

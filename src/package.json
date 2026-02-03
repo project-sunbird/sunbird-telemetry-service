@@ -10,20 +10,25 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
-    "body-parser": "~1.18.3",
-    "cookie-parser": "~1.4.3",
-    "debug": "~2.6.9",
-    "express": "~4.16.0",
+    "body-parser": "~1.20.3",
+    "cookie-parser": "~1.4.6",
+    "debug": "~4.3.4",
+    "express": "4.22.0",
     "express-cluster": "0.0.5",
-    "http-errors": "~1.6.2",
+    "http-errors": "~2.0.0",
     "kafkajs": "^2.2.4",
-    "lodash": "^4.17.10",
-    "morgan": "~1.9.0",
-    "request": "2.87.0",
-    "uuid": "~3.2.1",
-    "winston": "~2.4.3",
+    "lodash": "^4.17.23",
+    "morgan": "~1.10.0",
+    "qs": "^6.11.0",
+    "request": "^2.88.2",
+    "form-data": "2.5.5",
+    "send": "0.19.0",
+    "tough-cookie": "^5.0.0",
+    "uuid": "~9.0.1",
+    "winston": "~3.11.0",
     "winston-cassandra": "~0.4.0",
-    "winston-daily-rotate-file": "~3.2.1"
+    "winston-daily-rotate-file": "~4.7.1",
+    "helmet": "8.1.0"
   },
   "devDependencies": {
     "chai": "^4.1.2",
@@ -34,5 +39,11 @@
     "mochawesome": "^3.0.3",
     "nyc": "^12.0.2",
     "sinon": "^6.1.5"
+  },
+  "overrides": {
+    "form-data": "2.5.5",
+    "tough-cookie": "^5.0.0",
+    "qs": "^6.11.0",
+    "lodash": "^4.17.23"
   }
 }

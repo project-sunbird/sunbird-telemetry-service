@@ -21,6 +21,8 @@ const envVariables = {
   port: process.env.telemetry_service_port || 9001,
   threads: process.env.telemetry_service_threads || os.cpus().length,
   // dataset to be injected into outgoing telemetry events
-  dataset: process.env.telemetry_dataset || 'sb-telemetry'
+  dataset: process.env.telemetry_dataset || 'sb-telemetry',
+  // CORS configuration
+  allowedOrigins: process.env.telemetry_allowed_origins || '*'
 };
 module.exports = envVariables;
