@@ -188,7 +188,7 @@ describe('telemetry Service', () => {
       id: 'api.telemetry',
       ver: '1.0',
       ets: 0,
-      params: { err: 'not found' },
+      params: { err: 'Request failed' },
       responseCode: 'SERVER_ERROR'
     });
   });
@@ -278,7 +278,7 @@ describe('telemetry Service', () => {
       id: 'api.telemetry',
       ver: '1.0',
       ets: 0,
-      params: { err: 'proxy failed' },
+      params: { err: 'Request failed' },
       responseCode: 'SERVER_ERROR'
     });
   });
