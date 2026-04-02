@@ -1,4 +1,4 @@
-const winston = require('winston'),
+const Transport = require('winston-transport'),
   _ = require('lodash'),
   { Kafka, CompressionTypes } = require('kafkajs'),
   config = require('../envVariables'),
@@ -16,14 +16,14 @@ function mapCompressionAttr(attr) {
   return CompressionTypes.None;
 }
 
-class KafkaDispatcher extends winston.Transport {
+class KafkaDispatcher extends Transport {
   constructor(options) {
-    super();
+    super(options);
     this.name = 'kafka';
     this.options = _.assignInWith(defaultOptions, options, (objValue, srcValue) => srcValue ? srcValue : objValue);
-    if (this.options.compression_type == 'snappy') {
+    if (this.options.compression_type === 'snappy') {
       this.compression_attribute = 2;
-    } else if(this.options.compression_type == 'gzip') {
+    } else if(this.options.compression_type === 'gzip') {
       this.compression_attribute = 1;
     } else {
       this.compression_attribute = 0;
@@ -34,6 +34,7 @@ class KafkaDispatcher extends winston.Transport {
     this._kafka = new Kafka({ brokers });
     this._producer = this._kafka.producer();
     this._admin = this._kafka.admin();
+    this._producerConnected = false;
 
     // Backwards-compatible lightweight wrappers so existing code/tests that
     // expect producer.send(payloads, cb) and client.topicExists(topic, cb)
@@ -51,8 +52,12 @@ class KafkaDispatcher extends winston.Transport {
           };
         });
 
-        // connect producer, send batch, then call callback
-        this._producer.connect()
+        // ensure producer is connected, then send batch
+        const sendPromise = this._producerConnected 
+          ? Promise.resolve()
+          : this._producer.connect().then(() => { this._producerConnected = true; });
+
+        sendPromise
           .then(() => this._producer.sendBatch({ topicMessages }))
           .then(() => { if (cb) cb(); })
           .catch(err => { if (cb) cb(err); });
@@ -76,17 +81,22 @@ class KafkaDispatcher extends winston.Transport {
 
     // log basic connection info asynchronously
     this._producer.connect()
-      .then(() => console.log('kafka dispatcher producer connected'))
+      .then(() => {
+        this._producerConnected = true;
+        console.log('kafka dispatcher producer connected');
+      })
       .catch(err => console.error('Unable to connect kafka producer', err));
     this._admin.connect()
       .then(() => this._admin.disconnect())
       .catch(() => {});
   }
 
-  log(level, msg, meta, callback) {
-    // preserve the older kafka-node send signature by delegating to the wrapper
-    // msg is expected to be a JSON string. Inject a top-level dataset key
+  log(info, callback) {
+    // Modern winston 3.x transport signature: log(info, callback)
+    // info contains: level, message, and other metadata
+    // msg/message is expected to be a JSON string. Inject a top-level dataset key
     // from configuration if provided and not already present.
+    const msg = info.message;
     let outgoing = msg;
     try {
       if (typeof msg === 'string') {
@@ -104,7 +114,7 @@ class KafkaDispatcher extends winston.Transport {
 
     this.producer.send([{
       topic: this.options.topic,
-      key: meta && meta.mid,
+      key: info.mid,
       messages: outgoing,
       attributes: this.compression_attribute
     }], callback);
@@ -117,7 +127,5 @@ class KafkaDispatcher extends winston.Transport {
     });
   }
 }
-
-winston.transports.Kafka = KafkaDispatcher;
 
 module.exports = { KafkaDispatcher };

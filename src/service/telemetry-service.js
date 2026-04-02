@@ -1,4 +1,4 @@
-const uuidv1 = require('uuid/v1'),
+const { v1: uuidv1 } = require('uuid'),
   request = require('request'),
   DispatcherClass = require('../dispatcher/dispatcher').Dispatcher,
   config = require('../envVariables');
@@ -28,8 +28,11 @@ class TelemetryService {
         // Store locally and proxy to the specified URL. If the proxy fails ignore the error as the local storage is successful. Do a sync later
         const options = this.getProxyRequestObj(req, data);
         request.post(options, (err, data) => {
-          if (err) console.error('Proxy failed:', err);
-          else console.log('Proxy successful!  Server responded with:', data.body);
+          if (err) {
+            // Log error internally for monitoring (without exposing to client)
+            console.error('Telemetry proxy error:', err);
+          }
+          else console.log('Proxy successful');
         });
         this.dispatcher.dispatch(message.mid, data, this.getRequestCallBack(req, res));
       } else if (this.config.localStorageEnabled !== 'true' && this.config.telemetryProxyEnabled === 'true') {
@@ -58,8 +61,9 @@ class TelemetryService {
   getRequestCallBack(req, res) {
     return (err, data) => {
       if (err) {
-        console.log('error', err);
-        this.sendError(res, { id: 'api.telemetry', params: { err: err } });
+        // Log error internally for monitoring (without exposing to client)
+        console.error('Telemetry dispatch error:', err);
+        this.sendError(res, { id: 'api.telemetry', params: { err: 'Request failed' } });
       }
       else {
         this.sendSuccess(res, { id: 'api.telemetry' });

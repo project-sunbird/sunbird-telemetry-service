@@ -1,6 +1,7 @@
 const express = require('express'),
   cluster = require('express-cluster'),
   cookieParser = require('cookie-parser'),
+  helmet = require('helmet'),
   logger = require('morgan'),
   bodyParser = require('body-parser'),
   envVariables = require('./envVariables'),
@@ -9,12 +10,15 @@ const express = require('express'),
 
 const createAppServer = () => {
   const app = express();
+  app.use(helmet());
   app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Origin', envVariables.allowedOrigins);
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,PATCH,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization,' + 'cid, user-id, x-auth, Cache-Control, X-Requested-With, datatype, *');
-    if (req.method === 'OPTIONS') res.sendStatus(200);
-    else next();
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, cid, user-id, x-auth, Cache-Control, X-Requested-With, datatype, *');
+    if (req.method === 'OPTIONS') {
+      return res.status(200).end();
+    }
+    next();
   });
   app.use(bodyParser.json({ limit: '5mb' }));
   app.use(logger('dev'));
