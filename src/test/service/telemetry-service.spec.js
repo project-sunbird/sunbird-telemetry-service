@@ -18,6 +18,7 @@ describe('telemetry Service', () => {
   });
 
   afterEach(() => {
+    date.restore(); // Restore fake timers
     fakePostMethod.restore(); // Unwraps the spy
   });
 
