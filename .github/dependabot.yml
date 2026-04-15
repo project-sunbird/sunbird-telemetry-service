@@ -29,6 +29,17 @@ updates:
           - "qs"
           - "debug"
           - "tough-cookie"
+          - "request"
+      testing:
+        patterns:
+          - "chai*"
+          - "mocha*"
+          - "mochawesome*"
+          - "nyc"
+          - "sinon"
+      linting:
+        patterns:
+          - "eslint*"
 
   - package-ecosystem: "github-actions"
     directory: "/"
