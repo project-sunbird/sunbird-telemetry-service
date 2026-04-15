@@ -1,0 +1,39 @@
+name: 'Dependency Submission'
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  schedule:
+    - cron: '0 3 * * 1'  # Every Monday at 03:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write  # Required by the Dependency Submission API
+
+jobs:
+  submission:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '23'
+
+      - name: Generate fresh lock file
+        run: npm install --package-lock-only
+        working-directory: ./src
+
+      - name: Generate SPDX SBOM
+        run: npm sbom --sbom-format=spdx --package-lock-only > dependency.spdx.json
+        working-directory: ./src
+
+      - name: Submit Dependency Graph
+        uses: advanced-security/spdx-dependency-submission-action@v0.2.0
+        with:
+          filePath: './src'
+          filePattern: 'dependency.spdx.json'
+          correlator: 'backend'
