@@ -1,0 +1,38 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/src"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "03:00"
+    groups:
+      express:
+        patterns:
+          - "express*"
+          - "body-parser"
+          - "morgan"
+          - "cookie-parser"
+          - "http-errors"
+          - "send"
+          - "helmet"
+      logging:
+        patterns:
+          - "winston*"
+      kafka:
+        patterns:
+          - "kafkajs"
+      utility:
+        patterns:
+          - "lodash"
+          - "uuid"
+          - "qs"
+          - "debug"
+          - "tough-cookie"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "03:00"
