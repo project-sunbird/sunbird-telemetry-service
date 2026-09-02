@@ -18,14 +18,14 @@ RUN apt-get update \
 
 # Patch npm's bundled dependencies
 RUN npm install -g npm@11.10.0 --force \
-    && npm pack tar@7.5.11 \
+    && npm pack tar@7.5.19 \
     && npm pack minimatch@10.2.1 \
     && npm pack picomatch@4.0.4 \
     && npm pack brace-expansion@5.0.7 \
     && npm pack balanced-match@4.0.4 \
     && npm cache clean --force \
-    && tar -xzf tar-7.5.11.tgz -C /usr/lib/node_modules/npm/node_modules/tar --strip-components=1 \
-    && rm tar-7.5.11.tgz \
+    && tar -xzf tar-7.5.19.tgz -C /usr/lib/node_modules/npm/node_modules/tar --strip-components=1 \
+    && rm tar-7.5.19.tgz \
     && tar -xzf minimatch-10.2.1.tgz -C /usr/lib/node_modules/npm/node_modules/minimatch --strip-components=1 \
     && rm minimatch-10.2.1.tgz \
     && tar -xzf picomatch-4.0.4.tgz -C /usr/lib/node_modules/npm/node_modules/tinyglobby/node_modules/picomatch --strip-components=1 \
