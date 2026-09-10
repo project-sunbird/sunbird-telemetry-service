@@ -7,12 +7,17 @@ const chai = require('chai'),
 let req, res, date, fakePostMethod;
 
 describe('telemetry Service', () => {
+  let telemetryService;
 
   beforeEach(() => {
     delete require.cache[require.resolve(envVariablesPath)]; // deleting cached envVariables to test different configurations
     delete require.cache[require.resolve(telemetryServicePath)]; // deleting cached telemetryService to test different configurations
     req = sinon.stub({header: () => true, get: () => 'header', body: {}});
-    res = sinon.stub({status: () =>{}, json: ()=>{}});
+    const fakeRes = {
+      status: function () { return this; },
+      json: function () { return this; }
+    };
+    res = sinon.stub(fakeRes);
     date = sinon.useFakeTimers();
     fakePostMethod = sinon.stub(request, 'post');
   });
@@ -200,7 +205,7 @@ describe('telemetry Service', () => {
     process.env.telemetry_log_level = 'info';
     process.env.telemetry_local_storage_type = 'kafka';
     telemetryService = require(telemetryServicePath);
-    fakePostMethod.callsFake(({}, cb) => { cb(null, { body: {mes: 'success' }});});
+    fakePostMethod.callsFake(({}, cb) => { cb(null, { body: { message: 'success' }});});
     sinon.stub(telemetryService.dispatcher, 'dispatch').callsFake((message, body, cb) => cb(null, {body: {}}));
     telemetryService.dispatch(req, res);
     sinon.assert.calledOnce(telemetryService.dispatcher.dispatch);
@@ -223,7 +228,7 @@ describe('telemetry Service', () => {
     process.env.telemetry_log_level = 'info';
     process.env.telemetry_local_storage_type = 'kafka';
     telemetryService = require(telemetryServicePath);
-    fakePostMethod.callsFake(({}, cb) => { cb({ mes: 'proxy failed' }, null );});
+    fakePostMethod.callsFake(({}, cb) => { cb({ message: 'proxy failed' }, null );});
     sinon.stub(telemetryService.dispatcher, 'dispatch').callsFake((message, body, cb) => cb(null, {body: {}}));
     telemetryService.dispatch(req, res);
     sinon.assert.calledOnce(telemetryService.dispatcher.dispatch);
@@ -246,7 +251,7 @@ describe('telemetry Service', () => {
     process.env.telemetry_log_level = 'info';
     process.env.telemetry_local_storage_type = 'kafka';
     telemetryService = require(telemetryServicePath);
-    fakePostMethod.callsFake(({}, cb) => { cb(null, { body: {mes: 'success' }});});
+    fakePostMethod.callsFake(({}, cb) => { cb(null, { body: { message: 'success' }});});
     telemetryService.dispatch(req, res);
     expect(telemetryService.dispatcher).to.equal(undefined);
     sinon.assert.calledOnce(request.post);
