@@ -24,9 +24,9 @@
     "send": "0.19.0",
     "tough-cookie": "^5.0.0",
     "uuid": "~9.0.1",
-    "winston": "~3.11.0",
+    "winston": "~3.19.0",
     "winston-cassandra": "~0.4.0",
-    "winston-daily-rotate-file": "~4.7.1",
+    "winston-daily-rotate-file": "~5.0.0",
     "helmet": "8.1.0"
   },
   "devDependencies": {
